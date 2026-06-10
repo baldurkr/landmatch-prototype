@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:5174)",
+      "Bash(curl -s \"http://localhost:5174/src/app/components/MapView.tsx\")",
+      "Bash(curl -s \"http://localhost:5174/@fs/Users/baldur/Desktop/LandMatch%20Prototype/src/app/App.tsx\")",
+      "Bash(curl -s \"http://localhost:5174/src/main.tsx\")",
+      "Bash(curl -s \"http://localhost:5174/node_modules/.vite/deps/react-leaflet.js?v=a9f6b7db\")",
+      "Bash(curl -s \"http://localhost:5174/node_modules/.vite/deps/react-leaflet.js\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('peerDeps:', d.get\\('peerDependencies',{}\\)\\); print\\('exports:', list\\(d.get\\('exports',{}\\).keys\\(\\)\\)[:5]\\)\")",
+      "Bash(kill %1)",
+      "Bash(npm install *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('version:', d['version']\\); print\\('peerDeps:', d.get\\('peerDependencies',{}\\)\\)\")",
+      "mcp__claude_ai_Figma__get_design_context"
+    ]
+  }
+}
