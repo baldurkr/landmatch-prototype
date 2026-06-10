@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Minus, Layers } from 'lucide-react';
+import { Plus, Minus, Layers, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import UserMenu from './components/UserMenu';
 import AddressSearch from './components/AddressSearch';
 import { motion } from 'motion/react';
@@ -167,15 +167,6 @@ export default function App() {
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="absolute left-0 top-0 h-full w-[356px] bg-[#f7f8f5] z-20"
         >
-          <button
-            onClick={() => setIsPanelOpen(false)}
-            className="absolute top-1/2 -translate-y-1/2 right-[-20px] z-30 flex items-center justify-center size-[40px] rounded-[8px] bg-white shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)] border border-[rgba(0,0,0,0.14)] hover:bg-[#f7f8f5] transition-colors cursor-pointer"
-            aria-label="Collapse panel"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8.5 11L5.5 8L8.5 5M12.5 11L9.5 8L12.5 5" stroke="#04100b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
           <div className="w-[356px] h-full overflow-y-auto">
                 <div className="content-stretch flex flex-col gap-[24px] items-start px-[16px] pt-[24px] pb-[24px]">
                   {/* Active Layers */}
@@ -291,6 +282,21 @@ export default function App() {
                 </div>
           </div>
         </motion.div>
+
+        {/* Panel Visibility Toggle Button — tracks panel right edge - 6px; z-10 keeps it behind the panel so the panel clips its left rounded corner */}
+        <motion.button
+          onClick={() => setIsPanelOpen(prev => !prev)}
+          animate={{ x: isPanelOpen ? 0 : -356 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute z-10 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer shadow-[0px_2px_8px_0px_rgba(4,16,11,0.1)]"
+          style={{ left: 340, top: 'calc(50% - 24px)' }}
+          aria-label={isPanelOpen ? 'Collapse panel' : 'Expand panel'}
+        >
+          {isPanelOpen
+            ? <ChevronsLeft size={13} color="#141c11" />
+            : <ChevronsRight size={13} color="#141c11" />
+          }
+        </motion.button>
 
         {/* Map — full size, always rendered */}
         <div className="absolute inset-0 z-0">

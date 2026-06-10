@@ -34,6 +34,9 @@ function formatNominatim(displayName: string): [string, string] {
   return [parts.slice(0, 2).join(', '), parts.slice(2, 4).join(', ')];
 }
 
+// Bounding box biases Nominatim results toward Prince George's County, MD
+const PGCO_VIEWBOX = '-77.05,39.1,-76.55,38.55';
+
 async function fetchNominatim(q: string): Promise<GeoResult[]> {
   const params = new URLSearchParams({
     q,
@@ -41,6 +44,7 @@ async function fetchNominatim(q: string): Promise<GeoResult[]> {
     limit: '5',
     countrycodes: 'us',
     addressdetails: '1',
+    viewbox: PGCO_VIEWBOX,
   });
   const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
   const data: { place_id: number; display_name: string; lat: string; lon: string }[] =
@@ -85,10 +89,14 @@ export default function AddressSearch({ onSelect }: Props) {
         fetchNominatim(q).catch(() => [] as GeoResult[]),
         isAddressLike ? fetchCensus(q).catch(() => [] as GeoResult[]) : Promise.resolve([] as GeoResult[]),
       ]);
-      // Census first: exact house-number match beats fuzzy suggestions
-      const combined = [...census, ...nominatim];
-      setResults(combined);
-      setIsOpen(combined.length > 0);
+      // For house-number queries: Census gives the precise match; only fall back to
+      // Nominatim when Census found nothing (avoids off-county Nominatim results
+      // that cause the map to fly to the wrong place).
+      const results = isAddressLike
+        ? (census.length > 0 ? census : nominatim)
+        : nominatim;
+      setResults(results);
+      setIsOpen(results.length > 0);
     } catch {
       setResults([]);
       setIsOpen(false);
