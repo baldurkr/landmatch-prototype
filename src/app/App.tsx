@@ -286,10 +286,10 @@ export default function App() {
         {/* Panel Visibility Toggle Button — tracks panel right edge - 6px; z-10 keeps it behind the panel so the panel clips its left rounded corner */}
         <motion.button
           onClick={() => setIsPanelOpen(prev => !prev)}
-          animate={{ x: isPanelOpen ? 0 : -356 }}
+          animate={{ left: isPanelOpen ? 340 : -6 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute z-10 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer shadow-[0px_2px_8px_0px_rgba(4,16,11,0.1)]"
-          style={{ left: 340, top: 'calc(50% - 24px)' }}
+          className="absolute z-30 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
+          style={{ top: 'calc(50% - 24px)' }}
           aria-label={isPanelOpen ? 'Collapse panel' : 'Expand panel'}
         >
           {isPanelOpen
