@@ -12,10 +12,12 @@ import LayerCategory from './components/LayerCategory';
 import ProjectModal from './components/ProjectModal';
 import ProjectMenu from './components/ProjectMenu';
 import WordmarkDarkUi from '../imports/WordmarkDarkUi';
+import RightMenu from './components/RightMenu';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [basemap, setBasemap] = useState<'street' | 'satellite'>('street');
   const [layerFilter, setLayerFilter] = useState('');
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -412,6 +414,30 @@ export default function App() {
               </div>
           </div>
         </motion.div>
+
+        {/* Right Panel */}
+        <motion.div
+          animate={{ x: isRightPanelOpen ? 0 : 160 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-20"
+        >
+          <RightMenu />
+        </motion.div>
+
+        {/* Right Panel Toggle Button */}
+        <motion.button
+          onClick={() => setIsRightPanelOpen(prev => !prev)}
+          animate={{ right: isRightPanelOpen ? 160 : 0 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute z-30 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
+          style={{ top: 'calc(50% - 24px)' }}
+          aria-label={isRightPanelOpen ? 'Collapse right panel' : 'Expand right panel'}
+        >
+          {isRightPanelOpen
+            ? <ChevronsRight size={13} color="#141c11" />
+            : <ChevronsLeft size={13} color="#141c11" style={{ transform: 'scaleX(-1)' }} />
+          }
+        </motion.button>
 
       </div>
 
