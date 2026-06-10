@@ -29,8 +29,8 @@ export default function LayerCategory({ label, count, children }: LayerCategoryP
                 {label}
               </p>
             </div>
-            <div className="bg-[#5ca87c] content-stretch flex items-center justify-center overflow-clip px-[12px] py-[4px] relative rounded-[12px] shrink-0">
-              <p className="[word-break:break-word] font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-white tracking-[0.88px] uppercase whitespace-nowrap">
+            <div className="bg-[#e6eae1] content-stretch flex items-center justify-center overflow-clip px-[12px] py-[4px] relative rounded-[12px] shrink-0">
+              <p className="[word-break:break-word] font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-[#141c11] tracking-[0.88px] uppercase whitespace-nowrap">
                 {count}
               </p>
             </div>

@@ -170,7 +170,7 @@ export default function App() {
           <div className="w-[356px] h-full overflow-y-auto">
                 <div className="content-stretch flex flex-col gap-[24px] items-start px-[16px] pt-[24px] pb-[24px]">
                   {/* Active Layers */}
-                  <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
+                  <div className="content-stretch flex flex-col gap-[16px] items-start relative shrink-0 w-full">
                     <p className="[word-break:break-word] font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black tracking-[0.88px] uppercase whitespace-nowrap">
                       ACTIVE
                     </p>

@@ -135,8 +135,8 @@ export default function ActiveLayerCardWrapper({
         )}
         {isNoLayers && (
           <>
-            <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] tracking-[-0.255px]">No active layers</p>
-            <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] relative shrink-0 text-[15px]">Select a layer to start exploring</p>
+            <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] tracking-[-0.255px]">Select layers to explore</p>
+            <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] relative shrink-0 text-[15px]">Your active layers will be listed here</p>
           </>
         )}
       </div>

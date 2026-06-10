@@ -12,7 +12,8 @@
       "Bash(kill %1)",
       "Bash(npm install *)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('version:', d['version']\\); print\\('peerDeps:', d.get\\('peerDependencies',{}\\)\\)\")",
-      "mcp__claude_ai_Figma__get_design_context"
+      "mcp__claude_ai_Figma__get_design_context",
+      "Bash(open \"https://www.figma.com/design/mNwTdco3lm42tE2A1ucluH/LandMatch---Design-File?node-id=460-386&t=MI6nFdHF25w4tEBa-1\")"
     ]
   }
 }
