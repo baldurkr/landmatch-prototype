@@ -423,16 +423,15 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* Detail Panel - only visible when menu is open */}
-        {isRightPanelOpen && (
-          <motion.div
-            animate={{ x: isDetailPanelOpen ? 0 : 315 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute right-[160px] top-0 h-full w-[315px] bg-[#f7f8f5] z-20 pointer-events-auto"
-          >
-            <DetailPanel selectedMenuItem={selectedMenuItem} />
-          </motion.div>
-        )}
+        {/* Detail Panel - always mounted so it never flashes during the menu animation; only slides in when a menu button is clicked */}
+        <motion.div
+          initial={false}
+          animate={{ x: isDetailPanelOpen ? 0 : (isRightPanelOpen ? 315 : 475) }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="absolute right-[160px] top-0 h-full w-[315px] bg-[#f7f8f5] z-20 pointer-events-auto"
+        >
+          <DetailPanel selectedMenuItem={selectedMenuItem} />
+        </motion.div>
 
         {/* Right Menu Panel */}
         <motion.div
