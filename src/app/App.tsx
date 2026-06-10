@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { Plus, Minus, Layers, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Plus, Minus, Layers } from 'lucide-react';
+import ChevronIcon from '../assets/icons/Shape=Double Chevron Back Small.svg';
 import UserMenu from './components/UserMenu';
 import AddressSearch from './components/AddressSearch';
 import { motion } from 'motion/react';
@@ -13,11 +14,14 @@ import ProjectModal from './components/ProjectModal';
 import ProjectMenu from './components/ProjectMenu';
 import WordmarkDarkUi from '../imports/WordmarkDarkUi';
 import RightMenu from './components/RightMenu';
+import DetailPanel from './components/DetailPanel';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
+  const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
   const [basemap, setBasemap] = useState<'street' | 'satellite'>('street');
   const [layerFilter, setLayerFilter] = useState('');
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -294,10 +298,14 @@ export default function App() {
           style={{ top: 'calc(50% - 24px)' }}
           aria-label={isPanelOpen ? 'Collapse panel' : 'Expand panel'}
         >
-          {isPanelOpen
-            ? <ChevronsLeft size={13} color="#141c11" />
-            : <ChevronsRight size={13} color="#141c11" />
-          }
+          <img
+            src={ChevronIcon}
+            alt=""
+            className="w-[13px] h-[13px]"
+            style={{
+              transform: isPanelOpen ? 'scaleX(-1)' : 'scaleX(1)',
+            }}
+          />
         </motion.button>
 
         {/* Map — full size, always rendered */}
@@ -415,28 +423,54 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* Right Panel */}
+        {/* Detail Panel - only visible when menu is open */}
+        {isRightPanelOpen && (
+          <motion.div
+            animate={{ x: isDetailPanelOpen ? 0 : 315 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute right-[160px] top-0 h-full w-[315px] bg-[#f7f8f5] z-20 pointer-events-auto"
+          >
+            <DetailPanel selectedMenuItem={selectedMenuItem} />
+          </motion.div>
+        )}
+
+        {/* Right Menu Panel */}
         <motion.div
           animate={{ x: isRightPanelOpen ? 0 : 160 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-20"
+          className="absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-50 pointer-events-auto"
         >
-          <RightMenu />
+          <RightMenu onMenuItemClick={(label) => {
+            setSelectedMenuItem(label);
+            setIsDetailPanelOpen(true);
+          }} />
         </motion.div>
 
-        {/* Right Panel Toggle Button */}
+        {/* Single Toggle Button - moves to the edge of the current rightmost panel */}
         <motion.button
-          onClick={() => setIsRightPanelOpen(prev => !prev)}
-          animate={{ right: isRightPanelOpen ? 160 : 0 }}
+          onClick={() => {
+            if (isDetailPanelOpen) {
+              setIsDetailPanelOpen(false);
+            } else {
+              setIsRightPanelOpen(prev => !prev);
+            }
+          }}
+          animate={{
+            right: isDetailPanelOpen ? 459 : (isRightPanelOpen ? 144 : -6)
+          }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute z-30 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
+          className="absolute z-50 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
           style={{ top: 'calc(50% - 24px)' }}
-          aria-label={isRightPanelOpen ? 'Collapse right panel' : 'Expand right panel'}
+          aria-label="Toggle panel"
         >
-          {isRightPanelOpen
-            ? <ChevronsRight size={13} color="#141c11" />
-            : <ChevronsLeft size={13} color="#141c11" style={{ transform: 'scaleX(-1)' }} />
-          }
+          <img
+            src={ChevronIcon}
+            alt=""
+            className="w-[13px] h-[13px]"
+            style={{
+              transform: isDetailPanelOpen ? 'scaleX(-1)' : (isRightPanelOpen ? 'scaleX(-1)' : 'scaleX(1)'),
+            }}
+          />
         </motion.button>
 
       </div>
