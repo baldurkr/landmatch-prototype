@@ -18,6 +18,7 @@ import DetailPanel from './components/DetailPanel';
 import SiteInfoPanel from './components/SiteInfoPanel';
 import PermitsPanel from './components/PermitsPanel';
 import AnalysisPanel from './components/AnalysisPanel';
+import CitationsPanel from './components/CitationsPanel';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
@@ -456,6 +457,8 @@ export default function App() {
             ? <PermitsPanel />
             : isSiteSelected && selectedMenuItem === 'Analysis'
             ? <AnalysisPanel />
+            : isSiteSelected && selectedMenuItem === 'Citations'
+            ? <CitationsPanel />
             : <DetailPanel selectedMenuItem={selectedMenuItem} />}
         </motion.div>
 
