@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef, useEffect, type MutableRefObject } from 'react';
-import { MapContainer, TileLayer, useMap, GeoJSON } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap, useMapEvents, GeoJSON } from 'react-leaflet';
 import type { Map as LeafletMap, FeatureGroup } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -23,6 +23,7 @@ type MapViewProps = {
   basemap: 'street' | 'satellite';
   parcelsActive: boolean;
   parcelsStyle: 'plain' | 'yearBuilt';
+  onMapClick?: () => void;
 };
 
 export interface MapViewHandle {
@@ -70,6 +71,13 @@ function generateSampleParcels() {
 
 function MapHandle({ mapRef }: { mapRef: MutableRefObject<LeafletMap | null> }) {
   mapRef.current = useMap();
+  return null;
+}
+
+function MapClickHandler({ onMapClick }: { onMapClick?: () => void }) {
+  useMapEvents({
+    click: () => onMapClick?.(),
+  });
   return null;
 }
 
@@ -199,7 +207,7 @@ function ParcelsLayer({ parcelsActive, parcelsStyle }: { parcelsActive: boolean;
   return null;
 }
 
-const MapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActive, parcelsStyle }, ref) => {
+const MapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActive, parcelsStyle, onMapClick }, ref) => {
   const mapRef = useRef<LeafletMap | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -219,6 +227,7 @@ const MapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActiv
     >
       <TileLayer key={basemap} url={tile.url} attribution={tile.attribution} />
       <MapHandle mapRef={mapRef} />
+      <MapClickHandler onMapClick={onMapClick} />
       <ParcelsLayer parcelsActive={parcelsActive} parcelsStyle={parcelsStyle} />
     </MapContainer>
   );

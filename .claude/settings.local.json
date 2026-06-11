@@ -13,7 +13,15 @@
       "Bash(npm install *)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('version:', d['version']\\); print\\('peerDeps:', d.get\\('peerDependencies',{}\\)\\)\")",
       "mcp__claude_ai_Figma__get_design_context",
-      "Bash(open \"https://www.figma.com/design/mNwTdco3lm42tE2A1ucluH/LandMatch---Design-File?node-id=460-386&t=MI6nFdHF25w4tEBa-1\")"
+      "Bash(open \"https://www.figma.com/design/mNwTdco3lm42tE2A1ucluH/LandMatch---Design-File?node-id=460-386&t=MI6nFdHF25w4tEBa-1\")",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "Bash(curl -s -o /tmp/siteinfo.png \"https://www.figma.com/api/mcp/asset/920fccb5-bc05-46dc-90a8-721820140058\")",
+      "Bash(curl -s \"https://www.figma.com/api/mcp/asset/e9d73c0e-c786-4ee6-8943-c3489070c396\" -o /tmp/houseline.bin)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(curl -s -o /tmp/figma_border.png \"https://www.figma.com/api/mcp/asset/fa89c98d-d75a-4008-9728-872fccbce30e\")",
+      "Bash(curl -s -o /tmp/figma_border2.png \"https://www.figma.com/api/mcp/asset/a50a7d92-6198-4894-967a-a29ddc89838b\")",
+      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('figma_border2.png'\\); im.crop\\(\\(1180,60,1440,400\\)\\).save\\('crop.png'\\)\")"
     ]
   }
 }

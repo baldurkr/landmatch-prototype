@@ -8,11 +8,14 @@ import DownloadIcon from '../../assets/icons/Shape=Download.svg';
 type MenuButtonProps = {
   icon: string;
   label: string;
+  active?: boolean;
   onClick: (label: string) => void;
 };
 
-function MenuButton({ icon, label, onClick }: MenuButtonProps) {
+function MenuButton({ icon, label, active = false, onClick }: MenuButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const backgroundColor = active ? '#e6eae1' : isHovered ? '#edf0ea' : '#f7f8f5';
 
   return (
     <button
@@ -20,7 +23,7 @@ function MenuButton({ icon, label, onClick }: MenuButtonProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        backgroundColor: isHovered ? '#edf0ea' : '#f7f8f5',
+        backgroundColor,
         transition: 'background-color 150ms ease-in-out',
       }}
       className="content-stretch flex gap-[8px] items-center px-[12px] py-[8px] rounded-[8px] pointer-events-auto cursor-pointer"
@@ -35,10 +38,11 @@ function MenuButton({ icon, label, onClick }: MenuButtonProps) {
 
 type RightMenuProps = {
   className?: string;
+  activeItem?: string | null;
   onMenuItemClick?: (label: string) => void;
 };
 
-export default function RightMenu({ className, onMenuItemClick }: RightMenuProps) {
+export default function RightMenu({ className, activeItem, onMenuItemClick }: RightMenuProps) {
   const menuItems = [
     { icon: InfoIcon, label: 'Site Info' },
     { icon: CheckIcon, label: 'Permits' },
@@ -56,6 +60,7 @@ export default function RightMenu({ className, onMenuItemClick }: RightMenuProps
           key={label}
           icon={icon}
           label={label}
+          active={activeItem === label}
           onClick={(label) => {
             if (onMenuItemClick) onMenuItemClick(label);
           }}

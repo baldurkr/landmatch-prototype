@@ -15,6 +15,8 @@ import ProjectMenu from './components/ProjectMenu';
 import WordmarkDarkUi from '../imports/WordmarkDarkUi';
 import RightMenu from './components/RightMenu';
 import DetailPanel from './components/DetailPanel';
+import SiteInfoPanel from './components/SiteInfoPanel';
+import PermitsPanel from './components/PermitsPanel';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
@@ -22,11 +24,20 @@ export default function App() {
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
+  const [isSiteSelected, setIsSiteSelected] = useState(false);
   const [basemap, setBasemap] = useState<'street' | 'satellite'>('street');
   const [layerFilter, setLayerFilter] = useState('');
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [currentProject, setCurrentProject] = useState('Untitled Project');
   const [currentProjectDescription, setCurrentProjectDescription] = useState('');
+
+  // Prototype: clicking the map emulates selecting a parcel and opens Site Info
+  const handleMapClick = () => {
+    setIsSiteSelected(true);
+    setSelectedMenuItem('Site Info');
+    setIsRightPanelOpen(true);
+    setIsDetailPanelOpen(true);
+  };
 
   const handleZoomIn = () => {
     mapRef.current?.zoomIn();
@@ -150,7 +161,7 @@ export default function App() {
   return (
     <div className="content-stretch flex flex-col items-start relative size-full">
       {/* App Header */}
-      <div className="bg-[#04100b] content-stretch flex h-[64px] items-center justify-between px-[16px] py-[16px] relative shrink-0 w-full z-50">
+      <div className="bg-[#04100b] content-stretch flex h-[64px] items-center justify-between px-[16px] py-[16px] relative shrink-0 w-full z-[60]">
         <WordmarkDarkUi />
 
         <div className="content-stretch flex gap-[16px] items-center relative shrink-0">
@@ -312,13 +323,18 @@ export default function App() {
 
         {/* Map — full size, always rendered */}
         <div className="absolute inset-0 z-0">
-          <MapView ref={mapRef} basemap={basemap} parcelsActive={selectedLayers.parcels} parcelsStyle={selectedStyle} />
+          <MapView ref={mapRef} basemap={basemap} parcelsActive={selectedLayers.parcels} parcelsStyle={selectedStyle} onMapClick={handleMapClick} />
         </div>
 
-        {/* Map UI Overlays — positioned in visible map area (right of panel) */}
+        {/* Map UI Overlays — positioned in the visible map area; left edge tracks the
+            layers panel, right edge tracks the right menu + detail panel */}
         <motion.div
-          className="absolute top-0 bottom-0 right-0 pointer-events-none z-40"
-          animate={{ left: isPanelOpen ? 356 : 0 }}
+          initial={false}
+          className="absolute top-0 bottom-0 pointer-events-none z-10"
+          animate={{
+            left: isPanelOpen ? 356 : 0,
+            right: isDetailPanelOpen ? 593 : (isRightPanelOpen ? 160 : 0),
+          }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="flex flex-col items-start justify-between w-full h-full">
@@ -425,23 +441,28 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* Detail Panel - always mounted so it never flashes during the menu animation; only slides in when a menu button is clicked */}
+        {/* Detail Panel - always mounted so it never flashes during the menu animation; only slides in when a menu button is clicked.
+            Renders the Site Info panel once a parcel is selected, otherwise the empty state. */}
         <motion.div
           initial={false}
-          animate={{ x: isDetailPanelOpen ? 0 : (isRightPanelOpen ? 315 : 475) }}
+          animate={{ x: isDetailPanelOpen ? 0 : (isRightPanelOpen ? 433 : 593) }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute right-[160px] top-0 h-full w-[315px] bg-[#f7f8f5] z-20 pointer-events-auto"
+          className="absolute right-[160px] top-0 h-full w-[433px] bg-[#f7f8f5] border-l border-[rgba(0,0,0,0.09)] z-20 pointer-events-auto"
         >
-          <DetailPanel selectedMenuItem={selectedMenuItem} />
+          {isSiteSelected && selectedMenuItem === 'Site Info'
+            ? <SiteInfoPanel />
+            : isSiteSelected && selectedMenuItem === 'Permits'
+            ? <PermitsPanel />
+            : <DetailPanel selectedMenuItem={selectedMenuItem} />}
         </motion.div>
 
         {/* Right Menu Panel */}
         <motion.div
           animate={{ x: isRightPanelOpen ? 0 : 160 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-50 pointer-events-auto"
+          className={`absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-50 pointer-events-auto ${isRightPanelOpen && isDetailPanelOpen ? 'border-l border-[rgba(0,0,0,0.09)]' : ''}`}
         >
-          <RightMenu onMenuItemClick={(label) => {
+          <RightMenu activeItem={selectedMenuItem} onMenuItemClick={(label) => {
             setSelectedMenuItem(label);
             setIsDetailPanelOpen(true);
           }} />
@@ -457,7 +478,7 @@ export default function App() {
             }
           }}
           animate={{
-            right: isDetailPanelOpen ? 459 : (isRightPanelOpen ? 144 : -6)
+            right: isDetailPanelOpen ? 577 : (isRightPanelOpen ? 144 : -6)
           }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="absolute z-50 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
