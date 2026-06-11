@@ -19,6 +19,7 @@ import SiteInfoPanel from './components/SiteInfoPanel';
 import PermitsPanel from './components/PermitsPanel';
 import AnalysisPanel from './components/AnalysisPanel';
 import CitationsPanel from './components/CitationsPanel';
+import ExportPanel from './components/ExportPanel';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
@@ -318,7 +319,7 @@ export default function App() {
             alt=""
             className="w-[13px] h-[13px]"
             style={{
-              transform: isPanelOpen ? 'scaleX(-1)' : 'scaleX(1)',
+              transform: isPanelOpen ? 'scaleX(1)' : 'scaleX(-1)',
             }}
           />
         </motion.button>
@@ -459,6 +460,8 @@ export default function App() {
             ? <AnalysisPanel />
             : isSiteSelected && selectedMenuItem === 'Citations'
             ? <CitationsPanel />
+            : isSiteSelected && selectedMenuItem === 'Export'
+            ? <ExportPanel />
             : <DetailPanel selectedMenuItem={selectedMenuItem} />}
         </motion.div>
 
