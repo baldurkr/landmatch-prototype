@@ -17,6 +17,7 @@ import RightMenu from './components/RightMenu';
 import DetailPanel from './components/DetailPanel';
 import SiteInfoPanel from './components/SiteInfoPanel';
 import PermitsPanel from './components/PermitsPanel';
+import AnalysisPanel from './components/AnalysisPanel';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
@@ -453,6 +454,8 @@ export default function App() {
             ? <SiteInfoPanel />
             : isSiteSelected && selectedMenuItem === 'Permits'
             ? <PermitsPanel />
+            : isSiteSelected && selectedMenuItem === 'Analysis'
+            ? <AnalysisPanel />
             : <DetailPanel selectedMenuItem={selectedMenuItem} />}
         </motion.div>
 
