@@ -1,8 +1,9 @@
-import { forwardRef, useImperativeHandle, useRef, useEffect, type MutableRefObject } from 'react';
-import { MapContainer, TileLayer, useMap, useMapEvents, GeoJSON } from 'react-leaflet';
+import { forwardRef, useImperativeHandle, useRef, useEffect, useState, type MutableRefObject } from 'react';
+import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import type { Map as LeafletMap, FeatureGroup } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { USE_STATIC_MAP } from '../config';
 
 // Prince George's County, MD
 const CENTER: [number, number] = [38.83, -76.875];
@@ -24,6 +25,9 @@ type MapViewProps = {
   parcelsActive: boolean;
   parcelsStyle: 'plain' | 'yearBuilt';
   onMapClick?: () => void;
+  // Used by the static-image map to fall back to OSM when the user zooms while
+  // Satellite (USGS) is active, since only a single 1x USGS image exists.
+  onBasemapChange?: (basemap: 'street' | 'satellite') => void;
 };
 
 export interface MapViewHandle {
@@ -207,7 +211,7 @@ function ParcelsLayer({ parcelsActive, parcelsStyle }: { parcelsActive: boolean;
   return null;
 }
 
-const MapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActive, parcelsStyle, onMapClick }, ref) => {
+const LeafletMapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActive, parcelsStyle, onMapClick }, ref) => {
   const mapRef = useRef<LeafletMap | null>(null);
 
   useImperativeHandle(ref, () => ({
@@ -232,6 +236,104 @@ const MapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActiv
     </MapContainer>
   );
 });
+
+LeafletMapView.displayName = 'LeafletMapView';
+
+// ---------------------------------------------------------------------------
+// Static-image map (testing). Renders pre-rendered PNGs from assets/maps that
+// emulate the live map at discrete zoom levels (1x–6x) and layers.
+// ---------------------------------------------------------------------------
+
+// Eagerly resolve every map image to its bundled URL, keyed by filename.
+const MAP_IMAGE_MODULES = import.meta.glob('../../assets/maps/*.png', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const MAP_IMAGES: Record<string, string> = Object.fromEntries(
+  Object.entries(MAP_IMAGE_MODULES).map(([path, url]) => [path.split('/').pop()!, url]),
+);
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 6;
+// Parcels imagery only exists from this zoom level upward.
+const PARCELS_MIN_ZOOM = 4;
+// Satellite (USGS) imagery only exists as a single 1x image.
+const SATELLITE_IMAGE = 'PGC 1x USGS No layers.png';
+
+function staticImageName(basemap: 'street' | 'satellite', zoom: number, parcelsActive: boolean): string {
+  if (basemap === 'satellite') return SATELLITE_IMAGE;
+  const layer = parcelsActive && zoom >= PARCELS_MIN_ZOOM ? 'Parcels' : 'No layers';
+  return `PGC ${zoom}x OSM ${layer}.png`;
+}
+
+const StaticMapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActive, onMapClick, onBasemapChange }, ref) => {
+  const [zoom, setZoom] = useState(MIN_ZOOM);
+
+  // Satellite (USGS) only has a 1x image — always show it at 1x.
+  useEffect(() => {
+    if (basemap === 'satellite') setZoom(MIN_ZOOM);
+  }, [basemap]);
+
+  // Enabling Parcels while zoomed out to 1x–3x jumps to 4x, where Parcels
+  // imagery starts. At 4x–6x the suffix simply swaps (handled at render time).
+  useEffect(() => {
+    if (basemap === 'street' && parcelsActive && zoom < PARCELS_MIN_ZOOM) {
+      setZoom(PARCELS_MIN_ZOOM);
+    }
+    // Intentionally fires on the parcels/basemap transition; reads current zoom.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parcelsActive, basemap]);
+
+  useImperativeHandle(ref, () => ({
+    zoomIn: () => {
+      if (basemap === 'satellite') {
+        // USGS is 1x only — zooming in drops back to OSM imagery.
+        onBasemapChange?.('street');
+        setZoom(parcelsActive ? PARCELS_MIN_ZOOM : MIN_ZOOM + 1);
+      } else {
+        setZoom((z) => Math.min(z + 1, MAX_ZOOM));
+      }
+    },
+    zoomOut: () => {
+      // On satellite we're already at the only (1x) USGS image.
+      if (basemap === 'satellite') return;
+      setZoom((z) => Math.max(z - 1, MIN_ZOOM));
+    },
+    // No geolocation in the static map; address search is a no-op here.
+    flyTo: () => {},
+  }), [basemap, parcelsActive, onBasemapChange]);
+
+  const filename = staticImageName(basemap, zoom, parcelsActive);
+  const url = MAP_IMAGES[filename];
+
+  return (
+    <div
+      onClick={() => onMapClick?.()}
+      style={{ width: '100%', height: '100%', overflow: 'hidden', cursor: 'pointer', background: '#e8eae3' }}
+    >
+      {url ? (
+        <img
+          src={url}
+          alt={filename}
+          draggable={false}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none' }}
+        />
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', color: '#888', fontSize: 14 }}>
+          Missing map image: {filename}
+        </div>
+      )}
+    </div>
+  );
+});
+
+StaticMapView.displayName = 'StaticMapView';
+
+const MapView = forwardRef<MapViewHandle, MapViewProps>((props, ref) =>
+  USE_STATIC_MAP ? <StaticMapView ref={ref} {...props} /> : <LeafletMapView ref={ref} {...props} />,
+);
 
 MapView.displayName = 'MapView';
 export default MapView;
