@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import type { Map as LeafletMap, FeatureGroup } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { USE_STATIC_MAP } from '../config';
 
 // Prince George's County, MD
 const CENTER: [number, number] = [38.83, -76.875];
@@ -25,9 +24,6 @@ type MapViewProps = {
   parcelsActive: boolean;
   parcelsStyle: 'plain' | 'yearBuilt';
   onMapClick?: () => void;
-  // Used by the static-image map to fall back to OSM when the user zooms while
-  // Satellite (USGS) is active, since only a single 1x USGS image exists.
-  onBasemapChange?: (basemap: 'street' | 'satellite') => void;
 };
 
 export interface MapViewHandle {
@@ -240,8 +236,9 @@ const LeafletMapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parce
 LeafletMapView.displayName = 'LeafletMapView';
 
 // ---------------------------------------------------------------------------
-// Static-image map (testing). Renders pre-rendered PNGs from assets/maps that
-// emulate the live map at discrete zoom levels (1x–6x) and layers.
+// Static Parcels view. While the Parcels layer is active we swap the live OSM
+// map for pre-rendered "Parcels" PNGs from assets/maps. It opens at 4x (the
+// lowest zoom that has Parcels imagery) and can zoom between 4x and 6x.
 // ---------------------------------------------------------------------------
 
 // Eagerly resolve every map image to its bundled URL, keyed by filename.
@@ -255,57 +252,21 @@ const MAP_IMAGES: Record<string, string> = Object.fromEntries(
   Object.entries(MAP_IMAGE_MODULES).map(([path, url]) => [path.split('/').pop()!, url]),
 );
 
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 6;
-// Parcels imagery only exists from this zoom level upward.
+// Parcels imagery exists for 4x–6x only.
 const PARCELS_MIN_ZOOM = 4;
-// Satellite (USGS) imagery only exists as a single 1x image.
-const SATELLITE_IMAGE = 'PGC 1x USGS No layers.png';
+const PARCELS_MAX_ZOOM = 6;
 
-function staticImageName(basemap: 'street' | 'satellite', zoom: number, parcelsActive: boolean): string {
-  if (basemap === 'satellite') return SATELLITE_IMAGE;
-  const layer = parcelsActive && zoom >= PARCELS_MIN_ZOOM ? 'Parcels' : 'No layers';
-  return `PGC ${zoom}x OSM ${layer}.png`;
-}
-
-const StaticMapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcelsActive, onMapClick, onBasemapChange }, ref) => {
-  const [zoom, setZoom] = useState(MIN_ZOOM);
-
-  // Satellite (USGS) only has a 1x image — always show it at 1x.
-  useEffect(() => {
-    if (basemap === 'satellite') setZoom(MIN_ZOOM);
-  }, [basemap]);
-
-  // Enabling Parcels while zoomed out to 1x–3x jumps to 4x, where Parcels
-  // imagery starts. At 4x–6x the suffix simply swaps (handled at render time).
-  useEffect(() => {
-    if (basemap === 'street' && parcelsActive && zoom < PARCELS_MIN_ZOOM) {
-      setZoom(PARCELS_MIN_ZOOM);
-    }
-    // Intentionally fires on the parcels/basemap transition; reads current zoom.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parcelsActive, basemap]);
+const ParcelsStaticView = forwardRef<MapViewHandle, MapViewProps>(({ onMapClick }, ref) => {
+  const [zoom, setZoom] = useState(PARCELS_MIN_ZOOM);
 
   useImperativeHandle(ref, () => ({
-    zoomIn: () => {
-      if (basemap === 'satellite') {
-        // USGS is 1x only — zooming in drops back to OSM imagery.
-        onBasemapChange?.('street');
-        setZoom(parcelsActive ? PARCELS_MIN_ZOOM : MIN_ZOOM + 1);
-      } else {
-        setZoom((z) => Math.min(z + 1, MAX_ZOOM));
-      }
-    },
-    zoomOut: () => {
-      // On satellite we're already at the only (1x) USGS image.
-      if (basemap === 'satellite') return;
-      setZoom((z) => Math.max(z - 1, MIN_ZOOM));
-    },
-    // No geolocation in the static map; address search is a no-op here.
+    zoomIn: () => setZoom((z) => Math.min(z + 1, PARCELS_MAX_ZOOM)),
+    zoomOut: () => setZoom((z) => Math.max(z - 1, PARCELS_MIN_ZOOM)),
+    // No geolocation in the static view; address search is a no-op here.
     flyTo: () => {},
-  }), [basemap, parcelsActive, onBasemapChange]);
+  }), []);
 
-  const filename = staticImageName(basemap, zoom, parcelsActive);
+  const filename = `PGC ${zoom}x OSM Parcels.png`;
   const url = MAP_IMAGES[filename];
 
   return (
@@ -329,10 +290,11 @@ const StaticMapView = forwardRef<MapViewHandle, MapViewProps>(({ basemap, parcel
   );
 });
 
-StaticMapView.displayName = 'StaticMapView';
+ParcelsStaticView.displayName = 'ParcelsStaticView';
 
+// Hybrid: live OSM map by default; static Parcels imagery while Parcels is on.
 const MapView = forwardRef<MapViewHandle, MapViewProps>((props, ref) =>
-  USE_STATIC_MAP ? <StaticMapView ref={ref} {...props} /> : <LeafletMapView ref={ref} {...props} />,
+  props.parcelsActive ? <ParcelsStaticView ref={ref} {...props} /> : <LeafletMapView ref={ref} {...props} />,
 );
 
 MapView.displayName = 'MapView';

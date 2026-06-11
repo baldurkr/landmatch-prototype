@@ -326,7 +326,7 @@ export default function App() {
 
         {/* Map — full size, always rendered */}
         <div className="absolute inset-0 z-0">
-          <MapView ref={mapRef} basemap={basemap} parcelsActive={selectedLayers.parcels} parcelsStyle={selectedStyle} onMapClick={handleMapClick} onBasemapChange={setBasemap} />
+          <MapView ref={mapRef} basemap={basemap} parcelsActive={selectedLayers.parcels} parcelsStyle={selectedStyle} onMapClick={handleMapClick} />
         </div>
 
         {/* Map UI Overlays — positioned in the visible map area; left edge tracks the
