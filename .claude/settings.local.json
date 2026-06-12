@@ -21,7 +21,10 @@
       "Bash(npx vite *)",
       "Bash(curl -s -o /tmp/figma_border.png \"https://www.figma.com/api/mcp/asset/fa89c98d-d75a-4008-9728-872fccbce30e\")",
       "Bash(curl -s -o /tmp/figma_border2.png \"https://www.figma.com/api/mcp/asset/a50a7d92-6198-4894-967a-a29ddc89838b\")",
-      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('figma_border2.png'\\); im.crop\\(\\(1180,60,1440,400\\)\\).save\\('crop.png'\\)\")"
+      "Bash(python3 -c \"from PIL import Image; im=Image.open\\('figma_border2.png'\\); im.crop\\(\\(1180,60,1440,400\\)\\).save\\('crop.png'\\)\")",
+      "mcp__claude_ai_Figma__get_metadata",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)"
     ]
   }
 }

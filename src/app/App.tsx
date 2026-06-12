@@ -20,6 +20,7 @@ import PermitsPanel from './components/PermitsPanel';
 import AnalysisPanel from './components/AnalysisPanel';
 import CitationsPanel from './components/CitationsPanel';
 import ExportPanel from './components/ExportPanel';
+import ChatAssistant from './components/ChatAssistant';
 
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
@@ -399,8 +400,9 @@ export default function App() {
 
                 </div>
 
-                {/* Zoom Controls & Location */}
+                {/* AI Assistant, Zoom Controls & Scale */}
                 <div className="content-stretch flex flex-col gap-[24px] items-end justify-end relative shrink-0">
+                  <ChatAssistant parcelSelected={isSiteSelected} />
                   <div className="bg-white relative rounded-[8px] shrink-0">
                     <div className="flex flex-col gap-[10px] items-center justify-center p-[8px]">
                       <div className="flex items-center justify-center size-[24px] cursor-pointer" onClick={handleZoomIn}>
@@ -413,29 +415,17 @@ export default function App() {
                     </div>
                     <div aria-hidden className="absolute border border-[rgba(0,0,0,0.14)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)]" />
                   </div>
-                  <div className="content-stretch flex gap-[24px] items-end relative shrink-0">
-                    {/* Scale */}
-                    <div className="bg-[#f7f8f5] content-stretch flex gap-[10px] items-end p-[4px] relative rounded-[4px] shrink-0" data-name="Zoom Control/Map Scale">
-                      <p className="[text-box-edge:cap_alphabetic] [text-box-trim:trim-both] [word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[0] not-italic relative shrink-0 text-[12px] text-black uppercase whitespace-pre">
-                        <span className="leading-[1.5] lowercase">20 mi</span>
-                        <span className="leading-[1.5]">{`   `}</span>
-                      </p>
-                      <div className="h-[7.551px] relative shrink-0 w-[64px]">
-                        <div className="absolute inset-[0_-1.01%_-8.56%_-1.01%]">
-                          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 65.2929 8.19697">
-                            <path d="M0.646465 0V7.5505H64.6465V0" stroke="#141C11" strokeWidth="1.29293" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-white content-stretch flex items-center justify-end p-[9.6px] relative rounded-[28.8px] shrink-0 cursor-pointer hover:bg-[#f7f8f5] transition-colors">
-                      <div aria-hidden className="absolute border-[1.2px] border-[rgba(0,0,0,0.14)] border-solid inset-0 pointer-events-none rounded-[28.8px]" />
-                      <div className="overflow-clip relative shrink-0 size-[28.8px]">
-                        <div className="absolute inset-[18.75%_9.37%_6.25%_9.37%]">
-                          <svg className="absolute block inset-0 size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 23.4 21.6">
-                            <path d="M10.35 9C10.35 8.733 10.4292 8.472 10.5775 8.25C10.7259 8.028 10.9367 7.855 11.1834 7.753C11.4301 7.651 11.7015 7.624 11.9634 7.676C12.2253 7.728 12.4658 7.857 12.6546 8.045C12.8434 8.234 12.972 8.475 13.0241 8.737C13.0762 8.999 13.0494 9.27 12.9473 9.517C12.8451 9.763 12.6721 9.974 12.45 10.123C12.228 10.271 11.967 10.35 11.7 10.35C11.342 10.35 10.9986 10.208 10.7454 9.955C10.4923 9.701 10.35 9.358 10.35 9ZM6.75 10.35C7.017 10.35 7.278 10.271 7.5 10.123C7.722 9.974 7.895 9.763 7.997 9.517C8.099 9.27 8.126 8.999 8.074 8.737C8.022 8.475 7.893 8.234 7.705 8.045C7.516 7.857 7.275 7.728 7.013 7.676C6.752 7.624 6.48 7.651 6.233 7.753C5.987 7.855 5.776 8.028 5.628 8.25C5.479 8.472 5.4 8.733 5.4 9C5.4 9.358 5.542 9.701 5.795 9.955C6.049 10.208 6.392 10.35 6.75 10.35ZM16.65 10.35C16.917 10.35 17.178 10.271 17.4 10.123C17.622 9.974 17.795 9.763 17.897 9.517C17.999 9.27 18.026 8.999 17.974 8.737C17.922 8.475 17.793 8.234 17.605 8.045C17.416 7.857 17.175 7.728 16.913 7.676C16.652 7.624 16.38 7.651 16.133 7.753C15.887 7.855 15.676 8.028 15.528 8.25C15.379 8.472 15.3 8.733 15.3 9C15.3 9.358 15.442 9.701 15.695 9.955C15.949 10.208 16.292 10.35 16.65 10.35ZM23.4 1.8V16.2C23.4 16.677 23.21 17.135 22.873 17.473C22.535 17.81 22.077 18 21.6 18H6.638L2.97 21.168C2.636 21.451 2.225 21.601 1.8 21.6C1.536 21.599 1.275 21.541 1.035 21.429C0.724 21.285 0.462 21.056 0.278 20.767C0.095 20.478 0 20.142 0 19.8V1.8C0 1.323 0.19 0.865 0.527 0.527C0.865 0.19 1.323 0 1.8 0H21.6C22.077 0 22.535 0.19 22.873 0.527C23.21 0.865 23.4 1.323 23.4 1.8ZM21.6 1.8H1.8V19.8L5.712 16.425C5.874 16.282 6.083 16.202 6.3 16.2H21.6V1.8Z" fill="#288760" />
-                          </svg>
-                        </div>
+                  {/* Scale */}
+                  <div className="bg-[#f7f8f5] content-stretch flex gap-[10px] items-end p-[4px] relative rounded-[4px] shrink-0" data-name="Zoom Control/Map Scale">
+                    <p className="[text-box-edge:cap_alphabetic] [text-box-trim:trim-both] [word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[0] not-italic relative shrink-0 text-[12px] text-black uppercase whitespace-pre">
+                      <span className="leading-[1.5] lowercase">20 mi</span>
+                      <span className="leading-[1.5]">{`   `}</span>
+                    </p>
+                    <div className="h-[7.551px] relative shrink-0 w-[64px]">
+                      <div className="absolute inset-[0_-1.01%_-8.56%_-1.01%]">
+                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 65.2929 8.19697">
+                          <path d="M0.646465 0V7.5505H64.6465V0" stroke="#141C11" strokeWidth="1.29293" />
+                        </svg>
                       </div>
                     </div>
                   </div>
