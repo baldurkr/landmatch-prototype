@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowUp } from 'lucide-react';
 import Anthropic from '@anthropic-ai/sdk';
@@ -86,10 +86,30 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>(() => sample(STARTER_QUESTIONS, 2));
+  const [modalHeight, setModalHeight] = useState<number>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
   messagesRef.current = messages;
+
+  // Size the modal so its top sits 24px below the bottom edge of the address search.
+  // The modal's bottom is fixed (12px above the chat button), so we measure that and
+  // subtract the target top to get the height.
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const compute = () => {
+      const modal = modalRef.current;
+      const search = document.querySelector('[data-address-search]');
+      if (!modal || !search) return;
+      const modalBottom = modal.getBoundingClientRect().bottom;
+      const searchBottom = search.getBoundingClientRect().bottom;
+      setModalHeight(Math.max(240, modalBottom - searchBottom - 24));
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, [isOpen]);
 
   // Auto-grow the input box to fit its content, up to a max height.
   useEffect(() => {
@@ -194,12 +214,13 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            ref={modalRef}
             initial={{ opacity: 0, scale: 0.85, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 16, transition: { duration: 0.15 } }}
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            style={{ transformOrigin: 'bottom right', height: 'min(640px, calc(100vh - 340px))' }}
-            className="absolute bottom-[calc(100%+12px)] right-0 w-[360px] bg-white border border-[rgba(0,0,0,0.14)] border-solid rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)] flex flex-col overflow-clip pointer-events-auto"
+            style={{ transformOrigin: 'bottom right', height: modalHeight ? `${modalHeight}px` : undefined }}
+            className="absolute bottom-[calc(100%+12px)] right-0 w-[400px] bg-white border border-[rgba(0,0,0,0.14)] border-solid rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)] flex flex-col overflow-clip pointer-events-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-[16px] shrink-0 w-full">

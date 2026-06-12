@@ -128,6 +128,7 @@ export default function AddressSearch({ onSelect }: Props) {
 
   return (
     <div
+      data-address-search
       className="relative h-[40px] rounded-[8px] shrink-0 w-[288px]"
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsOpen(false);
