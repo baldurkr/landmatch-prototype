@@ -66,7 +66,7 @@ export default function ProjectMenu({ currentProject, currentProjectDescription,
         className="flex gap-[4px] h-[40px] items-center px-[12px] relative shrink-0 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] rounded-[6px] transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[#e8f1ea] text-[14px] tracking-[-0.07px] whitespace-nowrap">
+        <span className="font-['Inter:Medium',sans-serif] font-medium text-[#e8f1ea] text-[14px] tracking-[-0.07px] whitespace-nowrap">
           {currentProject}
         </span>
         <motion.div
@@ -109,7 +109,7 @@ export default function ProjectMenu({ currentProject, currentProjectDescription,
                       </div>
                     </div>
                     <div className="flex flex-col gap-[4px]">
-                      <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black tracking-[-0.07px]">
+                      <p className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black tracking-[-0.07px]">
                         {currentProject}
                       </p>
                       {currentProjectDescription && (
@@ -134,7 +134,7 @@ export default function ProjectMenu({ currentProject, currentProjectDescription,
                         </svg>
                       </div>
                     </div>
-                    <span className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] tracking-[-0.07px]">
+                    <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] tracking-[-0.07px]">
                       Save New Project ...
                     </span>
                   </MenuButton>
@@ -157,7 +157,7 @@ export default function ProjectMenu({ currentProject, currentProjectDescription,
                           </svg>
                         </div>
                       </div>
-                      <span className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] tracking-[-0.07px]">
+                      <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] tracking-[-0.07px]">
                         {project.name}
                       </span>
                     </MenuButton>
@@ -176,7 +176,7 @@ export default function ProjectMenu({ currentProject, currentProjectDescription,
                     </svg>
                   </div>
                 </div>
-                <span className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] tracking-[-0.07px]">
+                <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] tracking-[-0.07px]">
                   Open All Projects
                 </span>
               </MenuButton>

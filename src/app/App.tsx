@@ -3,7 +3,7 @@ import { Plus, Minus, Layers } from 'lucide-react';
 import ChevronIcon from '../assets/icons/Shape=Double Chevron Back Small.svg';
 import UserMenu from './components/UserMenu';
 import AddressSearch from './components/AddressSearch';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import ActiveLayerCardWrapper from './components/ActiveLayerCardWrapper';
 import SimpleActiveLayerCard from './components/SimpleActiveLayerCard';
 import ParcelsViewSelector from './components/ParcelsViewSelector';
@@ -25,7 +25,6 @@ import ChatAssistant from './components/ChatAssistant';
 export default function App() {
   const mapRef = useRef<MapViewHandle>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-  const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
   const [isSiteSelected, setIsSiteSelected] = useState(false);
@@ -39,7 +38,6 @@ export default function App() {
   const handleMapClick = () => {
     setIsSiteSelected(true);
     setSelectedMenuItem('Site Info');
-    setIsRightPanelOpen(true);
     setIsDetailPanelOpen(true);
   };
 
@@ -306,25 +304,6 @@ export default function App() {
           </div>
         </motion.div>
 
-        {/* Panel Visibility Toggle Button — tracks panel right edge - 6px; z-10 keeps it behind the panel so the panel clips its left rounded corner */}
-        <motion.button
-          onClick={() => setIsPanelOpen(prev => !prev)}
-          animate={{ left: isPanelOpen ? 340 : -6 }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute z-30 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
-          style={{ top: 'calc(50% - 24px)' }}
-          aria-label={isPanelOpen ? 'Collapse panel' : 'Expand panel'}
-        >
-          <img
-            src={ChevronIcon}
-            alt=""
-            className="w-[13px] h-[13px]"
-            style={{
-              transform: isPanelOpen ? 'scaleX(1)' : 'scaleX(-1)',
-            }}
-          />
-        </motion.button>
-
         {/* Map — full size, always rendered */}
         <div className="absolute inset-0 z-0">
           <MapView ref={mapRef} basemap={basemap} parcelsActive={selectedLayers.parcels} parcelsStyle={selectedStyle} onMapClick={handleMapClick} />
@@ -337,7 +316,7 @@ export default function App() {
           className="absolute top-0 bottom-0 pointer-events-none z-10"
           animate={{
             left: isPanelOpen ? 356 : 0,
-            right: isDetailPanelOpen ? 593 : (isRightPanelOpen ? 160 : 0),
+            right: isDetailPanelOpen ? 593 : 160,
           }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
@@ -375,7 +354,7 @@ export default function App() {
                               {basemap === 'street' && <circle cx="7.5" cy="8" r="3.5" fill="black" />}
                             </svg>
                           </div>
-                          <p className="[word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
+                          <p className="[word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
                             Street
                           </p>
                         </div>
@@ -389,7 +368,7 @@ export default function App() {
                               {basemap === 'satellite' && <circle cx="7.5" cy="8" r="3.5" fill="black" />}
                             </svg>
                           </div>
-                          <p className="[word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
+                          <p className="[word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
                             Satellite
                           </p>
                         </div>
@@ -417,7 +396,7 @@ export default function App() {
                   </div>
                   {/* Scale */}
                   <div className="bg-[#f7f8f5] content-stretch flex gap-[10px] items-end p-[4px] relative rounded-[4px] shrink-0" data-name="Zoom Control/Map Scale">
-                    <p className="[text-box-edge:cap_alphabetic] [text-box-trim:trim-both] [word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[0] not-italic relative shrink-0 text-[12px] text-black uppercase whitespace-pre">
+                    <p className="[text-box-edge:cap_alphabetic] [text-box-trim:trim-both] [word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[0] not-italic relative shrink-0 text-[12px] text-black uppercase whitespace-pre">
                       <span className="leading-[1.5] lowercase">20 mi</span>
                       <span className="leading-[1.5]">{`   `}</span>
                     </p>
@@ -438,7 +417,7 @@ export default function App() {
             Renders the Site Info panel once a parcel is selected, otherwise the empty state. */}
         <motion.div
           initial={false}
-          animate={{ x: isDetailPanelOpen ? 0 : (isRightPanelOpen ? 433 : 593) }}
+          animate={{ x: isDetailPanelOpen ? 0 : 433 }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="absolute right-[160px] top-0 h-full w-[433px] bg-[#f7f8f5] border-l border-[rgba(0,0,0,0.09)] z-20 pointer-events-auto"
         >
@@ -457,9 +436,7 @@ export default function App() {
 
         {/* Right Menu Panel */}
         <motion.div
-          animate={{ x: isRightPanelOpen ? 0 : 160 }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className={`absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-50 pointer-events-auto ${isRightPanelOpen && isDetailPanelOpen ? 'border-l border-[rgba(0,0,0,0.09)]' : ''}`}
+          className={`absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-50 pointer-events-auto ${isDetailPanelOpen ? 'border-l border-[rgba(0,0,0,0.09)]' : ''}`}
         >
           <RightMenu activeItem={selectedMenuItem} onMenuItemClick={(label) => {
             setSelectedMenuItem(label);
@@ -467,32 +444,28 @@ export default function App() {
           }} />
         </motion.div>
 
-        {/* Single Toggle Button - moves to the edge of the current rightmost panel */}
-        <motion.button
-          onClick={() => {
-            if (isDetailPanelOpen) {
-              setIsDetailPanelOpen(false);
-            } else {
-              setIsRightPanelOpen(prev => !prev);
-            }
-          }}
-          animate={{
-            right: isDetailPanelOpen ? 577 : (isRightPanelOpen ? 144 : -6)
-          }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute z-50 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
-          style={{ top: 'calc(50% - 24px)' }}
-          aria-label="Toggle panel"
-        >
-          <img
-            src={ChevronIcon}
-            alt=""
-            className="w-[13px] h-[13px]"
-            style={{
-              transform: isDetailPanelOpen ? 'scaleX(-1)' : (isRightPanelOpen ? 'scaleX(-1)' : 'scaleX(1)'),
-            }}
-          />
-        </motion.button>
+        {/* Detail Panel Collapse Button - only present while the detail panel is open; collapses it */}
+        <AnimatePresence>
+          {isDetailPanelOpen && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              onClick={() => setIsDetailPanelOpen(false)}
+              className="absolute z-50 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
+              style={{ top: 'calc(50% - 24px)', right: 577 }}
+              aria-label="Collapse detail panel"
+            >
+              <img
+                src={ChevronIcon}
+                alt=""
+                className="w-[13px] h-[13px]"
+                style={{ transform: 'scaleX(-1)' }}
+              />
+            </motion.button>
+          )}
+        </AnimatePresence>
 
       </div>
 

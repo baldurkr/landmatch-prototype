@@ -41,7 +41,7 @@ export default function ProjectModal({ isOpen, onClose, onSave }: ProjectModalPr
         </div>
         <div className="p-[24px] flex flex-col gap-[20px]">
           <div className="flex flex-col gap-[8px]">
-            <label className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black">
+            <label className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black">
               Project Name
             </label>
             <input
@@ -53,7 +53,7 @@ export default function ProjectModal({ isOpen, onClose, onSave }: ProjectModalPr
             />
           </div>
           <div className="flex flex-col gap-[8px]">
-            <label className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black">
+            <label className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black">
               Description
             </label>
             <textarea
@@ -68,13 +68,13 @@ export default function ProjectModal({ isOpen, onClose, onSave }: ProjectModalPr
         <div className="flex gap-[12px] justify-end p-[24px] border-t border-[rgba(0,0,0,0.09)]">
           <button
             onClick={onClose}
-            className="px-[20px] py-[10px] rounded-[8px] font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black hover:bg-[#f7f8f5] transition-colors"
+            className="px-[20px] py-[10px] rounded-[8px] font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black hover:bg-[#f7f8f5] transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-[20px] py-[10px] rounded-[8px] bg-[#5ca87c] font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-white hover:bg-[#4d9169] transition-colors"
+            className="px-[20px] py-[10px] rounded-[8px] bg-[#7ee8a2] font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-[#04100b] hover:bg-[#b3f0c7] active:bg-[#e1ffeb] transition-colors"
           >
             Save Project
           </button>

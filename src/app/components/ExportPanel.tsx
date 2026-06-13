@@ -96,7 +96,7 @@ export default function ExportPanel({ className }: { className?: string }) {
       <div className="relative flex-1 min-h-0 overflow-y-auto flex flex-col gap-[32px] items-start px-[24px] pt-[24px] pb-[32px]">
         {/* Header */}
         <div className="flex flex-col gap-[8px] items-start relative shrink-0 text-black w-full">
-          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] tracking-[-0.255px] whitespace-nowrap">
+          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.28] relative shrink-0 text-[22px] tracking-[-0.44px] whitespace-nowrap">
             Export
           </p>
           <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] relative shrink-0 text-[15px] w-full">

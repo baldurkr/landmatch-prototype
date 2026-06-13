@@ -7,7 +7,7 @@ export default function SimpleActiveLayerCard({ label, onRemove }: Props) {
   return (
     <div className="relative rounded-[8px] w-full bg-white">
       <div className="content-stretch flex items-center justify-between p-[12px] relative rounded-[inherit] size-full">
-        <p className="[word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
+        <p className="[word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
           {label}
         </p>
         <div

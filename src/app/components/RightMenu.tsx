@@ -29,7 +29,7 @@ function MenuButton({ icon, label, active = false, onClick }: MenuButtonProps) {
       className="content-stretch flex gap-[8px] items-center px-[12px] py-[8px] rounded-[8px] pointer-events-auto cursor-pointer"
     >
       <img src={icon} alt={label} className="shrink-0 size-[24px]" />
-      <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
+      <p className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
         {label}
       </p>
     </button>

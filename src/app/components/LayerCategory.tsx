@@ -25,7 +25,7 @@ export default function LayerCategory({ label, count, children }: LayerCategoryP
               >
                 <ChevronRight size={24} color="black" />
               </div>
-              <p className="[word-break:break-word] font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
+              <p className="[word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[1.2] not-italic relative shrink-0 text-[14px] text-black tracking-[-0.07px] whitespace-nowrap">
                 {label}
               </p>
             </div>

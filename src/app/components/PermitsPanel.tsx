@@ -1,28 +1,45 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { SquareArrowOutUpRight } from 'lucide-react';
 
-type Permit = { title: string; meta: string };
+const PGC_URL = 'https://www.princegeorgescountymd.gov/';
+const DEFAULT_CASE = '0083893';
 
-function PermitCard({ title, meta }: Permit) {
+type Permit = { title: string; source: string; date: string; caseNo?: string };
+
+function PermitCard({ title, source, date, caseNo }: Permit) {
   return (
-    <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[8px] items-start overflow-clip p-[12px] relative rounded-[8px] shrink-0 w-full">
-      <p className="font-['Inter:Medium',sans-serif] font-medium leading-[1.5] relative shrink-0 text-[14px] text-black w-full">
-        {title}
-      </p>
-      <p className="font-['Inter:Light',sans-serif] font-light leading-[1.5] relative shrink-0 text-[12px] text-black w-full">
-        {meta}
-      </p>
+    <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex gap-[8px] items-center overflow-clip p-[12px] relative rounded-[8px] shrink-0 w-full">
+      <div className="flex-1 min-w-px flex flex-col gap-[8px] items-start text-black [word-break:break-word]">
+        <p className="font-['Inter:Medium',sans-serif] font-medium leading-[1.5] relative shrink-0 text-[14px] w-full">
+          {title}
+        </p>
+        <p className="font-['Inter:Light',sans-serif] font-light leading-[1.5] relative shrink-0 text-[12px] w-full">
+          {source} · Case #{caseNo ?? DEFAULT_CASE} · Issued {date}
+        </p>
+      </div>
+      <a
+        href={PGC_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open source for ${title}`}
+        className="shrink-0 flex items-center justify-center rounded-[6px] p-[2px] -m-[2px] text-black hover:text-[#288760] transition-colors cursor-pointer"
+      >
+        <SquareArrowOutUpRight size={20} strokeWidth={2} />
+      </a>
     </div>
   );
 }
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[16px] items-start p-[16px] relative rounded-[8px] shrink-0 w-full">
+    <div className="flex flex-col gap-[16px] items-start relative shrink-0 w-full">
       <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-black tracking-[-0.255px]">
         {title}
       </p>
-      {children}
+      <div className="flex flex-col gap-[8px] items-start relative shrink-0 w-full">
+        {children}
+      </div>
     </div>
   );
 }
@@ -30,19 +47,19 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 const TABS = ['Entitlements', 'Permits', 'Plats'] as const;
 
 const entitlements: Permit[] = [
-  { title: 'Certified Preliminary Plan Approval', meta: 'PG-DPIE · March 12, 2024' },
-  { title: 'Water & Sewer System Extension Plan & Permit', meta: 'WSSC · March 12, 2024' },
-  { title: 'SWM Pond Plan & Permit', meta: 'PG-DPIE · March 12, 2024' },
-  { title: 'Street Construction Plan & Permit', meta: 'PG-DPIE · March 12, 2024' },
-  { title: 'Final FSC E&S Green Stamps Plan & Permit', meta: 'PG-SCD · March 12, 2024' },
+  { title: 'Certified Preliminary Plan Approval', source: 'PG-DPIE', date: 'March 12, 2024' },
+  { title: 'Water & Sewer System Extension Plan & Permit', source: 'WSSC', date: 'March 12, 2024' },
+  { title: 'SWM Pond Plan & Permit', source: 'PG-DPIE', date: 'March 12, 2024' },
+  { title: 'Street Construction Plan & Permit', source: 'PG-DPIE', date: 'March 12, 2024' },
+  { title: 'Final FSC E&S Green Stamps Plan & Permit', source: 'PG-SCD', date: 'March 12, 2024' },
 ];
 
 const permits: Permit[] = [
-  { title: 'Building Permit', meta: 'PG-DPIE · March 12, 2024' },
+  { title: 'Building Permit', source: 'PG-DPIE', date: 'March 12, 2024' },
 ];
 
 const plats: Permit[] = [
-  { title: 'Fine Grading Plan & Permit', meta: 'PG-DPIE · March 12, 2024' },
+  { title: 'Fine Grading Plan & Permit', source: 'PG-DPIE', date: 'March 12, 2024' },
 ];
 
 const sections = [
@@ -99,7 +116,7 @@ export default function PermitsPanel({ className }: { className?: string }) {
       {/* Header + Tabs (fixed) */}
       <div className="flex flex-col gap-[32px] items-start px-[24px] pt-[24px] pb-[16px] shrink-0">
         {/* Title */}
-        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-black tracking-[-0.255px] whitespace-nowrap">
+        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.28] relative shrink-0 text-[22px] text-black tracking-[-0.44px] whitespace-nowrap">
           Permits and Approvals
         </p>
 
@@ -112,7 +129,7 @@ export default function PermitsPanel({ className }: { className?: string }) {
                 onClick={() => handleTabClick(i)}
                 className="flex-1 flex items-center justify-center py-[8px] relative cursor-pointer"
               >
-                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.2] relative shrink-0 text-[14px] text-black text-center tracking-[-0.07px]">
+                <p className="font-['Inter:Medium',sans-serif] font-medium leading-[1.2] relative shrink-0 text-[14px] text-black text-center tracking-[-0.07px]">
                   {tab}
                 </p>
               </button>
@@ -138,11 +155,11 @@ export default function PermitsPanel({ className }: { className?: string }) {
             ref={(el) => { sectionRefs.current[i] = el; }}
             className="w-full scroll-mt-[24px]"
           >
-            <Card title={section.title}>
+            <Section title={section.title}>
               {section.items.map((permit) => (
                 <PermitCard key={permit.title} {...permit} />
               ))}
-            </Card>
+            </Section>
           </div>
         ))}
       </div>

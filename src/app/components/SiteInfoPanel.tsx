@@ -121,7 +121,7 @@ export default function SiteInfoPanel({ className }: { className?: string }) {
       <div className="flex flex-col gap-[32px] items-start px-[24px] pt-[24px] pb-[16px] shrink-0">
         {/* Address */}
         <div className="flex flex-col items-start relative shrink-0 text-black w-full">
-          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] tracking-[-0.255px] whitespace-nowrap">
+          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.28] relative shrink-0 text-[22px] tracking-[-0.44px] whitespace-nowrap">
             6501 Seat Pleasant Drive
           </p>
           <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] relative shrink-0 text-[15px] w-full">
@@ -138,7 +138,7 @@ export default function SiteInfoPanel({ className }: { className?: string }) {
                 onClick={() => handleTabClick(i)}
                 className="flex-1 flex items-center justify-center py-[8px] relative cursor-pointer"
               >
-                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.2] relative shrink-0 text-[14px] text-black text-center tracking-[-0.07px]">
+                <p className="font-['Inter:Medium',sans-serif] font-medium leading-[1.2] relative shrink-0 text-[14px] text-black text-center tracking-[-0.07px]">
                   {tab}
                 </p>
               </button>

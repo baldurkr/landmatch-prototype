@@ -15,7 +15,7 @@ function MenuRow({ icon, label, onClick }: { icon: ReactNode; label: string; onC
       className="w-full flex gap-[8px] items-center p-[4px] rounded-[8px] text-left transition-colors hover:bg-[#f7f8f5] active:bg-[#288760] active:text-white group"
     >
       <div className="overflow-clip relative shrink-0 size-[24px]">{icon}</div>
-      <span className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black tracking-[-0.07px] group-active:text-white">
+      <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black tracking-[-0.07px] group-active:text-white">
         {label}
       </span>
     </button>
@@ -55,7 +55,7 @@ export default function UserMenu() {
                     <img src={avatarImg} alt="" className="absolute inset-0 size-full object-cover" />
                   </div>
                   <div className="flex flex-col gap-[4px]">
-                    <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] text-black tracking-[-0.07px]">
+                    <p className="font-['Inter:Medium',sans-serif] font-medium text-[14px] text-black tracking-[-0.07px]">
                       Baldur Kristjánsson
                     </p>
                     <p className="font-['Inter:Medium',sans-serif] font-medium text-[12px] text-[#6a7c68] leading-[1.5]">
