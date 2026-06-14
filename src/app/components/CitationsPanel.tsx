@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { SquareArrowOutUpRight } from 'lucide-react';
 
 const PGC_URL = 'https://www.princegeorgescountymd.gov/';
@@ -18,9 +19,26 @@ const citations: Citation[] = [
   { title: 'Zoning Ordinance Subtitle 27', source: "Prince George's County Code", date: 'January 1, 2024' },
 ];
 
-function CitationCard({ index, citation }: { index: number; citation: Citation }) {
+function CitationCard({
+  index,
+  citation,
+  highlighted,
+  cardRef,
+}: {
+  index: number;
+  citation: Citation;
+  highlighted?: boolean;
+  cardRef?: (el: HTMLDivElement | null) => void;
+}) {
   return (
-    <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[16px] items-start overflow-clip p-[12px] relative rounded-[8px] shrink-0 w-full">
+    <div
+      ref={cardRef}
+      className={`bg-white border border-solid flex flex-col gap-[16px] items-start overflow-clip p-[12px] relative rounded-[8px] shrink-0 w-full transition-shadow duration-300 ${
+        highlighted
+          ? 'border-[#288760] shadow-[0px_0px_0px_3px_rgba(40,135,96,0.18)]'
+          : 'border-[rgba(0,0,0,0.09)]'
+      }`}
+    >
       {/* Number pill + title */}
       <div className="flex gap-[12px] items-center relative shrink-0 w-full">
         <div className="bg-[#e6eae1] flex flex-col items-center justify-center px-[12px] py-[4px] relative rounded-[16px] shrink-0 w-[27px]">
@@ -53,10 +71,35 @@ function CitationCard({ index, citation }: { index: number; citation: Citation }
   );
 }
 
-export default function CitationsPanel({ className }: { className?: string }) {
+export default function CitationsPanel({
+  className,
+  targetCitation,
+}: {
+  className?: string;
+  targetCitation?: number | null;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [highlighted, setHighlighted] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (targetCitation == null) return;
+    const container = scrollRef.current;
+    const target = cardRefs.current[targetCitation - 1];
+    if (!container || !target) return;
+
+    container.scrollTo({ top: Math.max(0, target.offsetTop - 24), behavior: 'smooth' });
+    setHighlighted(targetCitation);
+    const timer = setTimeout(() => setHighlighted(null), 1600);
+    return () => clearTimeout(timer);
+  }, [targetCitation]);
+
   return (
     <div className={className || 'bg-[#f7f8f5] flex flex-col h-full w-full overflow-hidden'}>
-      <div className="relative flex-1 min-h-0 overflow-y-auto flex flex-col gap-[32px] items-start px-[24px] pt-[24px] pb-[32px]">
+      <div
+        ref={scrollRef}
+        className="relative flex-1 min-h-0 overflow-y-auto flex flex-col gap-[32px] items-start px-[24px] pt-[24px] pb-[32px]"
+      >
         {/* Header */}
         <div className="flex flex-col gap-[8px] items-start relative shrink-0 text-black w-full">
           <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.28] relative shrink-0 text-[22px] tracking-[-0.44px] whitespace-nowrap">
@@ -70,7 +113,13 @@ export default function CitationsPanel({ className }: { className?: string }) {
         {/* Citation cards */}
         <div className="flex flex-col gap-[16px] items-start relative shrink-0 w-full">
           {citations.map((citation, i) => (
-            <CitationCard key={citation.title} index={i + 1} citation={citation} />
+            <CitationCard
+              key={citation.title}
+              index={i + 1}
+              citation={citation}
+              highlighted={highlighted === i + 1}
+              cardRef={(el) => { cardRefs.current[i] = el; }}
+            />
           ))}
         </div>
       </div>

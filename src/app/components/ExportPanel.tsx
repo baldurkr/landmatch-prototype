@@ -106,7 +106,7 @@ export default function ExportPanel({ className }: { className?: string }) {
 
         {/* File format */}
         <div className="flex flex-col gap-[16px] items-start relative shrink-0 w-full">
-          <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black tracking-[0.88px] uppercase whitespace-nowrap">
+          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-black tracking-[-0.255px] whitespace-nowrap">
             File Format
           </p>
           <FormatDropdown selected={selected} onSelect={setSelected} />

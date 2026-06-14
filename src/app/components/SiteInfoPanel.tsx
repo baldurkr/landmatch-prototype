@@ -159,9 +159,12 @@ export default function SiteInfoPanel({ className }: { className?: string }) {
         className="relative flex-1 min-h-0 overflow-y-auto flex flex-col gap-[32px] items-start px-[24px] pt-[16px] pb-[32px]"
       >
         {/* Zoning */}
-        <div ref={(el) => { sectionRefs.current[0] = el; }} className="w-full scroll-mt-[24px]">
+        <div
+          ref={(el) => { sectionRefs.current[0] = el; }}
+          className="flex flex-col gap-[16px] items-start w-full scroll-mt-[24px]"
+        >
+          <CardTitle>Zoning</CardTitle>
           <Card>
-            <CardTitle>Zoning</CardTitle>
             <div className="flex gap-[16px] items-center relative shrink-0 w-full">
               <img src={HouseLineIcon} alt="" className="shrink-0 size-[24px]" />
               <p className="flex-1 font-['Inter:Regular',sans-serif] font-normal leading-[1.55] min-w-px relative text-[15px] text-black">
@@ -172,9 +175,12 @@ export default function SiteInfoPanel({ className }: { className?: string }) {
         </div>
 
         {/* Property */}
-        <div ref={(el) => { sectionRefs.current[1] = el; }} className="w-full">
+        <div
+          ref={(el) => { sectionRefs.current[1] = el; }}
+          className="flex flex-col gap-[16px] items-start w-full"
+        >
+          <CardTitle>Property</CardTitle>
           <Card>
-            <CardTitle>Property</CardTitle>
             <div className="flex flex-col gap-[4px] items-start relative shrink-0 w-full">
               {propertyRows.map((row, i) => (
                 <InfoRow key={row.label} {...row} last={i === propertyRows.length - 1} />
@@ -184,9 +190,12 @@ export default function SiteInfoPanel({ className }: { className?: string }) {
         </div>
 
         {/* Jurisdiction */}
-        <div ref={(el) => { sectionRefs.current[2] = el; }} className="w-full">
+        <div
+          ref={(el) => { sectionRefs.current[2] = el; }}
+          className="flex flex-col gap-[16px] items-start w-full"
+        >
+          <CardTitle>Jurisdiction</CardTitle>
           <Card>
-            <CardTitle>Jurisdiction</CardTitle>
             <div className="flex flex-col gap-[4px] items-start relative shrink-0 w-full">
               {jurisdictionRows.map((row, i) => (
                 <InfoRow key={row.label} {...row} last={i === jurisdictionRows.length - 1} />
@@ -196,9 +205,12 @@ export default function SiteInfoPanel({ className }: { className?: string }) {
         </div>
 
         {/* Easements */}
-        <div ref={(el) => { sectionRefs.current[3] = el; }} className="w-full">
+        <div
+          ref={(el) => { sectionRefs.current[3] = el; }}
+          className="flex flex-col gap-[16px] items-start w-full"
+        >
+          <CardTitle>Easements</CardTitle>
           <Card>
-            <CardTitle>Easements</CardTitle>
             <div className="flex flex-col gap-[4px] items-start relative shrink-0 w-full">
               {easementsRows.map((row, i) => (
                 <InfoRow key={row.label} {...row} last={i === easementsRows.length - 1} />

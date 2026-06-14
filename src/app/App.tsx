@@ -27,6 +27,9 @@ export default function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const [selectedMenuItem, setSelectedMenuItem] = useState<string | null>(null);
+  // Citation number to scroll to when jumping from the Analysis panel to Citations.
+  // The Citations panel remounts on each switch, so its scroll effect re-runs even for repeat clicks.
+  const [citationTarget, setCitationTarget] = useState<number | null>(null);
   const [isSiteSelected, setIsSiteSelected] = useState(false);
   const [basemap, setBasemap] = useState<'street' | 'satellite'>('street');
   const [layerFilter, setLayerFilter] = useState('');
@@ -430,9 +433,15 @@ export default function App() {
             : isSiteSelected && selectedMenuItem === 'Permits'
             ? <PermitsPanel />
             : isSiteSelected && selectedMenuItem === 'Analysis'
-            ? <AnalysisPanel />
+            ? <AnalysisPanel
+                onCitationClick={(n) => {
+                  setCitationTarget(n);
+                  setSelectedMenuItem('Citations');
+                  setIsDetailPanelOpen(true);
+                }}
+              />
             : isSiteSelected && selectedMenuItem === 'Citations'
-            ? <CitationsPanel />
+            ? <CitationsPanel targetCitation={citationTarget} />
             : isSiteSelected && selectedMenuItem === 'Export'
             ? <ExportPanel />
             : <DetailPanel selectedMenuItem={selectedMenuItem} />}

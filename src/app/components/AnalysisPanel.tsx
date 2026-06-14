@@ -16,18 +16,18 @@ const INTENDED_USES = [
 
 // ---------- Primitives ----------
 
-function Kicker({ children }: { children: React.ReactNode }) {
+function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black tracking-[0.88px] uppercase whitespace-nowrap">
+    <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-black tracking-[-0.255px] whitespace-nowrap">
       {children}
     </p>
   );
 }
 
-function Section({ kicker, children }: { kicker: string; children: React.ReactNode }) {
+function Section({ heading, children }: { heading: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-[16px] items-start relative shrink-0 w-full">
-      <Kicker>{kicker}</Kicker>
+      <SectionHeading>{heading}</SectionHeading>
       {children}
     </div>
   );
@@ -44,6 +44,71 @@ function WarningStamp() {
       <rect x="11.1" y="6.25" width="2.8" height="8.25" rx="1.4" fill="white" />
       <circle cx="12.5" cy="17.75" r="1.5" fill="white" />
     </svg>
+  );
+}
+
+function CheckStamp() {
+  return (
+    <svg viewBox="0 0 25 25" className="shrink-0 size-[25px]" fill="none">
+      <circle cx="12.5" cy="12.5" r="12.5" fill="#298c45" />
+      <path d="M7 12.8 10.3 16 18 8.4" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ProhibitedStamp() {
+  return (
+    <svg viewBox="0 0 25 25" className="shrink-0 size-[25px]" fill="none">
+      <circle cx="12.5" cy="12.5" r="12.5" fill="#c4362f" />
+      <path d="M8.5 8.5 16.5 16.5M16.5 8.5 8.5 16.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// Mock feasibility logic: the first two uses are by-right, townhomes need an
+// exception, everything else is prohibited.
+type QuickResult = 'byRight' | 'conditional' | 'prohibited';
+
+function getQuickResult(use: string): QuickResult {
+  if (use === INTENDED_USES[0] || use === INTENDED_USES[1]) return 'byRight';
+  if (use === INTENDED_USES[2]) return 'conditional';
+  return 'prohibited';
+}
+
+function QuickCheckResult({ use }: { use: string }) {
+  const config = {
+    byRight: {
+      bg: 'bg-[#dbf0e3]',
+      stamp: <CheckStamp />,
+      title: 'Permitted by right',
+      body: `${use} is allowed on RR zoning.`,
+    },
+    conditional: {
+      bg: 'bg-[#f0e8db]',
+      stamp: <WarningStamp />,
+      title: 'Exception required',
+      body: 'To successfully propose this use, a Special Exception will be required.',
+    },
+    prohibited: {
+      bg: 'bg-[#f0dbdb]',
+      stamp: <ProhibitedStamp />,
+      title: 'Prohibited',
+      body: 'To successfully propose this use, a politically supported re-zoning amendment will be required.',
+    },
+  }[getQuickResult(use)];
+
+  return (
+    <div className={`${config.bg} flex gap-[16px] items-start overflow-clip p-[16px] relative rounded-[8px] shrink-0 w-full`}>
+      {config.stamp}
+      <div className="flex flex-1 flex-col gap-[4px] items-start min-w-px relative">
+        <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-black tracking-[-0.255px]">
+          {config.title}
+        </p>
+        <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] relative shrink-0 text-[15px] text-[#141c11] w-full">
+          {config.body}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -110,13 +175,18 @@ const pathway: { label: string; status: 'required' | 'notNeeded' }[] = [
   { label: 'Rezoning', status: 'notNeeded' },
 ];
 
-const triggers = [
-  'Stormwater Management Concept Plan [1]',
-  'Forest Conservation Plan [2]',
-  'Erosion & Sediment Control [3]',
+type BulletItem = { text: string; citation: number };
+
+const triggers: BulletItem[] = [
+  { text: 'Stormwater Management Concept Plan', citation: 1 },
+  { text: 'Forest Conservation Plan', citation: 2 },
+  { text: 'Erosion & Sediment Control', citation: 3 },
 ];
 
-const obligations = ['Water tap upgrade required [4]', 'Sound wall required [5]'];
+const obligations: BulletItem[] = [
+  { text: 'Water tap upgrade required', citation: 4 },
+  { text: 'Sound wall required', citation: 5 },
+];
 
 function InfoPill({ status }: { status: 'required' | 'notNeeded' }) {
   const isRequired = status === 'required';
@@ -137,15 +207,33 @@ function InfoPill({ status }: { status: 'required' | 'notNeeded' }) {
   );
 }
 
-function BulletCard({ items }: { items: string[] }) {
+function CitationPill({ n, onClick }: { n: number; onClick?: (n: number) => void }) {
   return (
-    <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[4px] items-start p-[16px] relative rounded-[8px] shrink-0 w-full">
+    <button
+      type="button"
+      onClick={() => onClick?.(n)}
+      aria-label={`Jump to citation ${n}`}
+      className="bg-[#e6eae1] flex flex-col items-center justify-center px-[12px] py-[4px] relative rounded-[16px] shrink-0 w-[27px] hover:bg-[#d7dccf] transition-colors cursor-pointer"
+    >
+      <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black text-center tracking-[0.88px] uppercase w-full">
+        {n}
+      </p>
+    </button>
+  );
+}
+
+function BulletCard({ items, onCitationClick }: { items: BulletItem[]; onCitationClick?: (n: number) => void }) {
+  return (
+    <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[8px] items-start p-[16px] relative rounded-[8px] shrink-0 w-full">
       {items.map((item) => (
-        <ul key={item} className="font-['Inter:Regular',sans-serif] font-normal text-[13px] text-black w-full">
-          <li className="list-disc ms-[19.5px]">
-            <span className="leading-[1.5]">{item}</span>
-          </li>
-        </ul>
+        <div key={item.text} className="flex gap-[8px] items-start relative shrink-0 w-full">
+          <ul className="font-['Inter:Regular',sans-serif] font-normal text-[13px] text-black shrink-0">
+            <li className="list-disc ms-[19.5px]">
+              <span className="leading-[1.5]">{item.text}</span>
+            </li>
+          </ul>
+          <CitationPill n={item.citation} onClick={onCitationClick} />
+        </div>
       ))}
     </div>
   );
@@ -219,7 +307,13 @@ function IntendedUseDropdown({
 
 type LoadState = 'hidden' | 'loading' | 'shown';
 
-export default function AnalysisPanel({ className }: { className?: string }) {
+export default function AnalysisPanel({
+  className,
+  onCitationClick,
+}: {
+  className?: string;
+  onCitationClick?: (n: number) => void;
+}) {
   const [selectedUse, setSelectedUse] = useState<string | null>(null);
   const [quickState, setQuickState] = useState<LoadState>('hidden');
   const [fullState, setFullState] = useState<LoadState>('hidden');
@@ -269,7 +363,7 @@ export default function AnalysisPanel({ className }: { className?: string }) {
 
         {/* Intended Use (always visible) */}
         <div className="flex flex-col gap-[16px] items-start relative shrink-0 w-full">
-          <Kicker>Intended Use</Kicker>
+          <SectionHeading>Intended Use</SectionHeading>
           <IntendedUseDropdown selected={selectedUse} onSelect={handleSelect} />
         </div>
 
@@ -293,20 +387,10 @@ export default function AnalysisPanel({ className }: { className?: string }) {
         {quickState === 'shown' && (
           <Reveal>
             {/* Quick Check Result */}
-            <div className="bg-[#f0e8db] flex gap-[16px] items-start overflow-clip p-[16px] relative rounded-[8px] shrink-0 w-full">
-              <WarningStamp />
-              <div className="flex flex-1 flex-col gap-[4px] items-start min-w-px relative">
-                <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-black tracking-[-0.255px]">
-                  Exception required
-                </p>
-                <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] relative shrink-0 text-[15px] text-[#141c11] w-full">
-                  To successfully propose this use, a Special Exception will be required.
-                </p>
-              </div>
-            </div>
+            <QuickCheckResult use={selectedUse ?? ''} />
 
             {/* Gross Yield */}
-            <Section kicker="Gross Yield">
+            <Section heading="Gross Yield">
               <div className="flex gap-[16px] items-start relative shrink-0 w-full">
                 <KeyResultCard label="Lot yield" value="8,200" sub="buildable sqft" />
                 <KeyResultCard label="Max lots" value="5" sub="@ min lot 6,500 sqft" />
@@ -314,7 +398,7 @@ export default function AnalysisPanel({ className }: { className?: string }) {
             </Section>
 
             {/* Assumptions */}
-            <Section kicker="Assumptions">
+            <Section heading="Assumptions">
               <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[4px] items-start p-[16px] relative rounded-[8px] shrink-0 w-full">
                 {assumptions.map((row, i) => (
                   <div key={row.label} className="flex flex-col gap-[4px] w-full">
@@ -373,12 +457,12 @@ export default function AnalysisPanel({ className }: { className?: string }) {
         {fullState === 'shown' && (
           <Reveal>
             {/* Net Development Yield */}
-            <Section kicker="Net Development Yield">
+            <Section heading="Net Development Yield">
               <KeyResultCard label="Net lots" value="4" sub="@ net GFA 6,400 sqft" />
             </Section>
 
             {/* Entitlement Complexity */}
-            <Section kicker="Entitlement Complexity">
+            <Section heading="Entitlement Complexity">
               <div className="bg-[#f0e8db] flex gap-[16px] items-start overflow-clip p-[16px] relative rounded-[8px] shrink-0 w-full">
                 <div className="flex flex-1 flex-col gap-[4px] items-start min-w-px relative">
                   <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] relative shrink-0 text-[17px] text-[#b87b14] tracking-[-0.255px]">
@@ -392,7 +476,7 @@ export default function AnalysisPanel({ className }: { className?: string }) {
             </Section>
 
             {/* Entitlement Pathway */}
-            <Section kicker="Entitlement Pathway">
+            <Section heading="Entitlement Pathway">
               <div className="bg-white border border-[rgba(0,0,0,0.09)] border-solid flex flex-col gap-[12px] items-start p-[16px] relative rounded-[8px] shrink-0 w-full">
                 {pathway.map((row) => (
                   <div key={row.label} className="flex items-center justify-between relative shrink-0 w-full">
@@ -406,13 +490,13 @@ export default function AnalysisPanel({ className }: { className?: string }) {
             </Section>
 
             {/* Technical Plan Triggers */}
-            <Section kicker="Technical Plan Triggers">
-              <BulletCard items={triggers} />
+            <Section heading="Technical Plan Triggers">
+              <BulletCard items={triggers} onCitationClick={onCitationClick} />
             </Section>
 
             {/* Infrastructure Obligations */}
-            <Section kicker="Infrastructure Obligations">
-              <BulletCard items={obligations} />
+            <Section heading="Infrastructure Obligations">
+              <BulletCard items={obligations} onCitationClick={onCitationClick} />
             </Section>
           </Reveal>
         )}
