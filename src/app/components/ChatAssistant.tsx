@@ -223,13 +223,13 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
             className="absolute bottom-[calc(100%+12px)] right-0 w-[400px] bg-white border border-[rgba(0,0,0,0.14)] border-solid rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)] flex flex-col overflow-clip pointer-events-auto"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-[16px] shrink-0 w-full">
-              <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] text-[17px] text-black tracking-[-0.255px]">
+            <div className="bg-[#04100b] flex items-center justify-between p-[16px] shrink-0 w-full">
+              <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[1.35] text-[17px] text-white tracking-[-0.255px]">
                 Land Feasibility Assistant
               </p>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center size-[24px] cursor-pointer text-black hover:opacity-60 transition-opacity"
+                className="flex items-center justify-center size-[24px] cursor-pointer text-white hover:opacity-60 transition-opacity"
                 aria-label="Close assistant"
               >
                 <X size={18} strokeWidth={2.5} />
@@ -311,9 +311,9 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
                   type="submit"
                   disabled={isStreaming || !input.trim()}
                   aria-label="Send message"
-                  className="bg-[#04100b] border border-[rgba(0,0,0,0.14)] border-solid flex items-center justify-center rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)] shrink-0 size-[40px] cursor-pointer hover:bg-[#1a2620] transition-colors disabled:opacity-40 disabled:cursor-default"
+                  className="bg-[#7ee8a2] border border-[rgba(0,0,0,0.14)] border-solid flex items-center justify-center rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)] shrink-0 size-[40px] cursor-pointer hover:bg-[#b3f0c7] active:bg-[#e1ffeb] transition-colors disabled:opacity-40 disabled:cursor-default"
                 >
-                  <ArrowUp size={24} color="white" />
+                  <ArrowUp size={24} color="#04100b" />
                 </button>
               </form>
             </div>
