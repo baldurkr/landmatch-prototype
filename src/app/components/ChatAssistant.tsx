@@ -89,22 +89,24 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
   const [modalHeight, setModalHeight] = useState<number>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<ChatMessage[]>([]);
   messagesRef.current = messages;
 
-  // Size the modal so its top sits 24px below the bottom edge of the address search.
-  // The modal's bottom is fixed (12px above the chat button), so we measure that and
-  // subtract the target top to get the height.
+  // Size the modal so its top stops 24px below the top edge of the map area. The modal's
+  // bottom is fixed 12px above the chat button, which is the container's only in-flow child —
+  // so the container's top edge is the modal's bottom + 12px. We measure that (rather than the
+  // modal itself, whose entrance transform would skew the reading) to derive the height. The
+  // modal may overlap the address search freely.
   useLayoutEffect(() => {
     if (!isOpen) return;
     const compute = () => {
-      const modal = modalRef.current;
-      const search = document.querySelector('[data-address-search]');
-      if (!modal || !search) return;
-      const modalBottom = modal.getBoundingClientRect().bottom;
-      const searchBottom = search.getBoundingClientRect().bottom;
-      setModalHeight(Math.max(240, modalBottom - searchBottom - 24));
+      const container = containerRef.current;
+      const mapArea = document.querySelector('[data-map-area]');
+      if (!container || !mapArea) return;
+      const modalBottom = container.getBoundingClientRect().top - 12;
+      const mapTop = mapArea.getBoundingClientRect().top;
+      setModalHeight(Math.max(240, modalBottom - mapTop - 24));
     };
     compute();
     window.addEventListener('resize', compute);
@@ -209,12 +211,11 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
   };
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       {/* Chat window — springs up from the bubble */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            ref={modalRef}
             initial={{ opacity: 0, scale: 0.85, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 16, transition: { duration: 0.15 } }}
@@ -241,14 +242,14 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
             <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-[16px] p-[16px] w-full">
               {messages.length === 0 && (
                 <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] text-[15px] text-[#97a191]">
-                  Ask me anything about this parcel or local regulations.
+                  Ask me anything about this parcel or local regulations. Chat history will be saved along with the project.
                 </p>
               )}
               {messages.map((message, i) =>
                 message.role === 'user' ? (
                   <div key={i} className="flex flex-col items-end shrink-0 w-full">
-                    <div className="bg-[#f7f8f5] flex items-start p-[8px] rounded-[8px] max-w-[272px]">
-                      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] text-[15px] text-black [word-break:break-word]">
+                    <div className="bg-[#288760] flex items-start p-[8px] rounded-[8px] max-w-[272px]">
+                      <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.55] text-[15px] text-white [word-break:break-word]">
                         {message.content}
                       </p>
                     </div>

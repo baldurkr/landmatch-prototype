@@ -4,8 +4,7 @@ import ChevronIcon from '../assets/icons/Shape=Double Chevron Back Small.svg';
 import UserMenu from './components/UserMenu';
 import AddressSearch from './components/AddressSearch';
 import { motion, AnimatePresence } from 'motion/react';
-import ActiveLayerCardWrapper from './components/ActiveLayerCardWrapper';
-import SimpleActiveLayerCard from './components/SimpleActiveLayerCard';
+import ActiveLayersCard, { type ActiveLayer } from './components/ActiveLayersCard';
 import ParcelsViewSelector from './components/ParcelsViewSelector';
 import MapView, { type MapViewHandle } from './components/MapView';
 import LayerCheckbox from './components/LayerCheckbox';
@@ -88,8 +87,6 @@ export default function App() {
   const nonParcelsActiveLayers = (Object.entries(selectedLayers) as [keyof typeof selectedLayers, boolean][])
     .filter(([key, val]) => key !== 'parcels' && val);
 
-  const hasAnyActive = selectedLayers.parcels || nonParcelsActiveLayers.length > 0 || activeSubLayers.size > 0;
-
   const allLayers = [
     { key: 'parcels', label: 'Parcels' },
     { key: 'zoning', label: 'Zoning' },
@@ -98,6 +95,26 @@ export default function App() {
     { key: 'census', label: 'Census Tracts' },
     { key: 'boundaries', label: 'County Boundaries' },
   ] as const;
+
+  const activeLayerPills: ActiveLayer[] = [
+    ...(selectedLayers.parcels
+      ? [{
+          id: 'parcels',
+          label: 'Parcels',
+          onRemove: () => setSelectedLayers(prev => ({ ...prev, parcels: false })),
+        }]
+      : []),
+    ...nonParcelsActiveLayers.map(([key]) => ({
+      id: key,
+      label: allLayers.find(l => l.key === key)?.label ?? key,
+      onRemove: () => setSelectedLayers(prev => ({ ...prev, [key]: false })),
+    })),
+    ...[...activeSubLayers].map(label => ({
+      id: label,
+      label,
+      onRemove: () => removeSubLayer(label),
+    })),
+  ];
 
   const allCategories = [
     {
@@ -181,7 +198,7 @@ export default function App() {
       </div>
 
       {/* Main Container */}
-      <div className="flex-[1_0_0] h-full min-h-px relative w-full overflow-hidden">
+      <div data-map-area className="flex-[1_0_0] h-full min-h-px relative w-full overflow-hidden">
         {/* Map — always full size, panel slides over it */}
         {/* Layers Panel */}
         <motion.div
@@ -200,27 +217,7 @@ export default function App() {
                     <p className="[word-break:break-word] font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black tracking-[0.88px] uppercase whitespace-nowrap">
                       ACTIVE
                     </p>
-                    <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
-                      {!hasAnyActive && (
-                        <ActiveLayerCardWrapper format="No layers" />
-                      )}
-                      {selectedLayers.parcels && (
-                        <SimpleActiveLayerCard
-                          label="Parcels"
-                          onRemove={() => setSelectedLayers(prev => ({ ...prev, parcels: false }))}
-                        />
-                      )}
-                      {nonParcelsActiveLayers.map(([key]) => (
-                        <SimpleActiveLayerCard
-                          key={key}
-                          label={allLayers.find(l => l.key === key)?.label ?? key}
-                          onRemove={() => setSelectedLayers(prev => ({ ...prev, [key]: false }))}
-                        />
-                      ))}
-                      {[...activeSubLayers].map(label => (
-                        <SimpleActiveLayerCard key={label} label={label} onRemove={() => removeSubLayer(label)} />
-                      ))}
-                    </div>
+                    <ActiveLayersCard layers={activeLayerPills} />
                   </div>
 
                   {/* Search Layers */}
@@ -389,30 +386,34 @@ export default function App() {
                 {/* AI Assistant, Zoom Controls & Scale */}
                 <div className="content-stretch flex flex-col gap-[24px] items-end justify-end relative shrink-0">
                   <ChatAssistant parcelSelected={isSiteSelected} />
-                  <div className="bg-white relative rounded-[8px] shrink-0">
-                    <div className="flex flex-col gap-[10px] items-center justify-center p-[8px]">
-                      <div className="flex items-center justify-center size-[24px] cursor-pointer" onClick={handleZoomIn}>
-                        <Plus size={20} color="black" />
-                      </div>
-                      <div className="bg-[rgba(0,0,0,0.14)] h-px w-full" />
-                      <div className="flex items-center justify-center size-[24px] cursor-pointer" onClick={handleZoomOut}>
-                        <Minus size={20} color="black" />
+                  {/* Scale & Zoom Controls — stacked horizontally along the bottom */}
+                  <div className="flex gap-[10px] items-end justify-end shrink-0">
+                    {/* Scale */}
+                    <div className="bg-[#f7f8f5] content-stretch flex gap-[10px] items-end p-[4px] relative rounded-[4px] shrink-0" data-name="Zoom Control/Map Scale">
+                      <p className="[text-box-edge:cap_alphabetic] [text-box-trim:trim-both] [word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[0] not-italic relative shrink-0 text-[12px] text-black uppercase whitespace-pre">
+                        <span className="leading-[1.5] lowercase">20 mi</span>
+                        <span className="leading-[1.5]">{`   `}</span>
+                      </p>
+                      <div className="h-[7.551px] relative shrink-0 w-[64px]">
+                        <div className="absolute inset-[0_-1.01%_-8.56%_-1.01%]">
+                          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 65.2929 8.19697">
+                            <path d="M0.646465 0V7.5505H64.6465V0" stroke="#141C11" strokeWidth="1.29293" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                    <div aria-hidden className="absolute border border-[rgba(0,0,0,0.14)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)]" />
-                  </div>
-                  {/* Scale */}
-                  <div className="bg-[#f7f8f5] content-stretch flex gap-[10px] items-end p-[4px] relative rounded-[4px] shrink-0" data-name="Zoom Control/Map Scale">
-                    <p className="[text-box-edge:cap_alphabetic] [text-box-trim:trim-both] [word-break:break-word] font-['Inter:Medium',sans-serif] font-medium leading-[0] not-italic relative shrink-0 text-[12px] text-black uppercase whitespace-pre">
-                      <span className="leading-[1.5] lowercase">20 mi</span>
-                      <span className="leading-[1.5]">{`   `}</span>
-                    </p>
-                    <div className="h-[7.551px] relative shrink-0 w-[64px]">
-                      <div className="absolute inset-[0_-1.01%_-8.56%_-1.01%]">
-                        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 65.2929 8.19697">
-                          <path d="M0.646465 0V7.5505H64.6465V0" stroke="#141C11" strokeWidth="1.29293" />
-                        </svg>
+                    {/* Zoom Controls */}
+                    <div className="bg-white relative rounded-[8px] shrink-0">
+                      <div className="flex flex-col gap-[10px] items-center justify-center p-[8px]">
+                        <div className="flex items-center justify-center size-[24px] cursor-pointer" onClick={handleZoomIn}>
+                          <Plus size={20} color="black" />
+                        </div>
+                        <div className="bg-[rgba(0,0,0,0.14)] h-px w-full" />
+                        <div className="flex items-center justify-center size-[24px] cursor-pointer" onClick={handleZoomOut}>
+                          <Minus size={20} color="black" />
+                        </div>
                       </div>
+                      <div aria-hidden className="absolute border border-[rgba(0,0,0,0.14)] border-solid inset-0 pointer-events-none rounded-[8px] shadow-[0px_2px_10px_0px_rgba(4,16,11,0.04)]" />
                     </div>
                   </div>
                 </div>
@@ -451,7 +452,13 @@ export default function App() {
         <motion.div
           className={`absolute right-0 top-0 h-full w-[160px] bg-[#f7f8f5] z-50 pointer-events-auto ${isDetailPanelOpen ? 'border-l border-[rgba(0,0,0,0.09)]' : ''}`}
         >
-          <RightMenu activeItem={selectedMenuItem} onMenuItemClick={(label) => {
+          <RightMenu activeItem={isDetailPanelOpen ? selectedMenuItem : null} onMenuItemClick={(label) => {
+            // Clicking the already-active item while its panel is open collapses the panel,
+            // just like the double-chevron handle.
+            if (isDetailPanelOpen && selectedMenuItem === label) {
+              setIsDetailPanelOpen(false);
+              return;
+            }
             setSelectedMenuItem(label);
             setIsDetailPanelOpen(true);
           }} />
