@@ -24,7 +24,8 @@
       "Bash(python3 -c \"from PIL import Image; im=Image.open\\('figma_border2.png'\\); im.crop\\(\\(1180,60,1440,400\\)\\).save\\('crop.png'\\)\")",
       "mcp__claude_ai_Figma__get_metadata",
       "Skill(claude-api)",
-      "Skill(claude-api:*)"
+      "Skill(claude-api:*)",
+      "Bash(curl -s -o /tmp/active_layers.png \"https://www.figma.com/api/mcp/asset/00264c8f-077d-45eb-8b85-7affc1497229\")"
     ]
   }
 }

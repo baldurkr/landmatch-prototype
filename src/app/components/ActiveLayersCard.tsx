@@ -33,7 +33,7 @@ export default function ActiveLayersCard({ layers }: Props) {
           </p>
         </div>
       ) : (
-        <div className="overflow-y-auto p-[16px] size-full">
+        <div className="overflow-y-auto p-[8px] size-full">
           <div className="content-start flex flex-wrap gap-[8px] items-start">
             {layers.map((layer) => (
               <LayerPill key={layer.id} label={layer.label} onRemove={layer.onRemove} />
