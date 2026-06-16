@@ -464,24 +464,25 @@ export default function App() {
           }} />
         </motion.div>
 
-        {/* Detail Panel Collapse Button - only present while the detail panel is open; collapses it */}
+        {/* Detail Panel Handle - collapses the panel when open, re-opens the last tab when closed.
+            Hidden only on first load, before any right-menu tab has been selected. */}
         <AnimatePresence>
-          {isDetailPanelOpen && (
+          {selectedMenuItem && (
             <motion.button
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              animate={{ opacity: 1, right: isDetailPanelOpen ? 577 : 144 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              onClick={() => setIsDetailPanelOpen(false)}
+              onClick={() => setIsDetailPanelOpen(!isDetailPanelOpen)}
               className="absolute z-50 w-[32px] h-[48px] rounded-[8px] overflow-hidden bg-[#f7f8f5] flex items-center justify-center hover:bg-[#eceee9] transition-colors cursor-pointer"
-              style={{ top: 'calc(50% - 24px)', right: 577 }}
-              aria-label="Collapse detail panel"
+              style={{ top: 'calc(50% - 24px)' }}
+              aria-label={isDetailPanelOpen ? 'Collapse detail panel' : 'Open detail panel'}
             >
               <img
                 src={ChevronIcon}
                 alt=""
-                className="w-[13px] h-[13px]"
-                style={{ transform: 'scaleX(-1)' }}
+                className="w-[13px] h-[13px] transition-transform duration-300"
+                style={{ transform: isDetailPanelOpen ? 'scaleX(-1)' : 'scaleX(1)' }}
               />
             </motion.button>
           )}
