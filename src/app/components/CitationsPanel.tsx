@@ -42,7 +42,7 @@ function CitationCard({
       {/* Number pill + title */}
       <div className="flex gap-[12px] items-center relative shrink-0 w-full">
         <div className="bg-[#e6eae1] flex flex-col items-center justify-center py-[4px] relative rounded-[16px] shrink-0 w-[27px]">
-          <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black text-center">
+          <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative top-[1px] shrink-0 text-[11px] text-black text-center">
             {index}
           </p>
         </div>

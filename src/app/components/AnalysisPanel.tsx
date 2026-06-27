@@ -215,7 +215,7 @@ function CitationPill({ n, onClick }: { n: number; onClick?: (n: number) => void
       aria-label={`Jump to citation ${n}`}
       className="bg-[#e6eae1] flex flex-col items-center justify-center py-[4px] relative rounded-[16px] shrink-0 w-[27px] hover:bg-[#d7dccf] transition-colors cursor-pointer"
     >
-      <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[11px] text-black text-center">
+      <p className="font-['JetBrains_Mono:Medium',sans-serif] font-medium leading-[1.3] relative top-[1px] shrink-0 text-[11px] text-black text-center">
         {n}
       </p>
     </button>
