@@ -26,7 +26,12 @@
       "Skill(claude-api)",
       "Skill(claude-api:*)",
       "Bash(curl -s -o /tmp/active_layers.png \"https://www.figma.com/api/mcp/asset/00264c8f-077d-45eb-8b85-7affc1497229\")",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(git log *)",
+      "Bash(git branch *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Vertically center citation pill numbers *)",
+      "Bash(git push *)"
     ]
   }
 }
