@@ -1,11 +1,10 @@
-// Vercel Edge Function — proxies Anthropic calls so the API key stays server-side.
-// The key is read from process.env.ANTHROPIC_API_KEY (no VITE_ prefix), so it is
-// NEVER bundled into the browser. Two actions:
+// Vercel Node Function — proxies Anthropic calls so the API key stays server-side.
+// Runs on the Node.js runtime (NOT Edge): the Anthropic SDK imports node:fs / node:path,
+// which the Edge runtime rejects. The key is read from process.env.ANTHROPIC_API_KEY
+// (no VITE_ prefix), so it is NEVER bundled into the browser. Two actions:
 //   - "chat":    streams the assistant reply back as plain text
 //   - "suggest": returns { questions: [...] } as JSON (structured output)
 import Anthropic from '@anthropic-ai/sdk';
-
-export const config = { runtime: 'edge' };
 
 const MODEL = 'claude-haiku-4-5';
 
@@ -34,19 +33,35 @@ const SUGGESTION_SCHEMA = {
 
 type ChatMessage = { role: 'user' | 'assistant'; content: string };
 
-export default async function handler(req: Request): Promise<Response> {
+// Minimal request/response shapes (avoids depending on @vercel/node types).
+interface Req {
+  method?: string;
+  body?: unknown;
+}
+interface Res {
+  status: (code: number) => Res;
+  setHeader: (name: string, value: string) => void;
+  send: (body: string) => void;
+  write: (chunk: string) => void;
+  end: () => void;
+  headersSent: boolean;
+}
+
+export default async function handler(req: Req, res: Res): Promise<void> {
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    res.status(405).send('Method not allowed');
+    return;
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     // No key configured — the client falls back to canned answers.
-    return new Response('Assistant not configured', { status: 503 });
+    res.status(503).send('Assistant not configured');
+    return;
   }
 
   const client = new Anthropic({ apiKey });
-  const body = (await req.json()) as {
+  const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body ?? {}) as {
     action?: 'chat' | 'suggest';
     messages?: ChatMessage[];
     question?: string;
@@ -54,7 +69,7 @@ export default async function handler(req: Request): Promise<Response> {
   };
 
   if (body.action === 'suggest') {
-    const res = await client.messages.create({
+    const result = await client.messages.create({
       model: MODEL,
       max_tokens: 256,
       system: SUGGESTION_SYSTEM,
@@ -63,39 +78,30 @@ export default async function handler(req: Request): Promise<Response> {
       ],
       output_config: { format: { type: 'json_schema', schema: SUGGESTION_SCHEMA } },
     });
-    const text = res.content.find(b => b.type === 'text')?.text ?? '{"questions":[]}';
-    return new Response(text, { headers: { 'content-type': 'application/json' } });
+    const text = result.content.find(b => b.type === 'text')?.text ?? '{"questions":[]}';
+    res.setHeader('content-type', 'application/json');
+    res.status(200).send(text);
+    return;
   }
 
   // Default: streaming chat.
   const messages = (body.messages ?? []).filter(m => m.content.length > 0);
-  const stream = client.messages.stream({
-    model: MODEL,
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages,
-  });
-
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (
-            event.type === 'content_block_delta' &&
-            event.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
-        }
-        controller.close();
-      } catch (err) {
-        controller.error(err);
-      }
-    },
-  });
-
-  return new Response(readable, {
-    headers: { 'content-type': 'text/plain; charset=utf-8' },
-  });
+  try {
+    res.setHeader('content-type', 'text/plain; charset=utf-8');
+    const stream = client.messages.stream({
+      model: MODEL,
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      messages,
+    });
+    stream.on('text', (delta: string) => res.write(delta));
+    await stream.finalMessage();
+    res.end();
+  } catch {
+    if (!res.headersSent) {
+      res.status(502).send('Assistant unavailable');
+    } else {
+      res.end();
+    }
+  }
 }
