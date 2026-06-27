@@ -1,22 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowUp } from 'lucide-react';
-import Anthropic from '@anthropic-ai/sdk';
 
-const MODEL = 'claude-haiku-4-5';
-
-const SYSTEM_PROMPT = `You are the Land Feasibility Assistant inside LandMatch, a land feasibility analysis tool for developers and builders in Maryland. You help users understand whether a parcel is feasible to develop: zoning, easements, setbacks, right-of-way dedication, environmental constraints, permitting, utilities, and jurisdiction processes.
-
-The user currently has this parcel selected:
-- Address: 6501 Seat Pleasant Drive, Capitol Heights, MD 20743
-- Zoning: RR (Residential, Rural)
-- Land area: 10.6 acres (461,736 sqft); building area 2,028 sqft; year built 1928
-- Jurisdiction: Prince George's County, Maryland; municipality Capitol Heights; water & sewer WSSC; grading/stormwater/ROW dedication via PG-DPIE; erosion & sediment control via PG-SCD; entitlements via M-NCPPC
-- Easements/constraints: access/ingress/egress 1.9%, woodland/forest conservation 11.0%, steep slopes 3.3%; no floodplain, streams, wetlands, or stormwater easements recorded
-
-Answer questions about this parcel and about land feasibility in general. Be practical and specific. Keep answers short — 2 to 4 sentences, plain text only (no markdown, no lists, no headings). If something requires verification with the county, say so briefly.`;
-
-// Canned answers used when no API key is configured, so the prototype still demos end-to-end.
+// Canned answers used when the assistant API is unavailable (no key configured, or
+// running plain `vite` dev where /api isn't served), so the prototype still demos end-to-end.
 const FALLBACK_ANSWERS: [RegExp, string][] = [
   [/permit/i, 'In Prince George’s County, a straightforward residential building permit through PG-DPIE typically takes 2–4 months, while projects needing entitlements through M-NCPPC can add 6–12 months. Pre-application meetings can shorten review cycles considerably.'],
   [/row|right.of.way/i, 'ROW easements reduce net buildable area twice — once through the dedicated land itself, and again by resetting the line that setbacks are measured from.'],
@@ -24,7 +11,7 @@ const FALLBACK_ANSWERS: [RegExp, string][] = [
   [/zon/i, 'RR (Residential, Rural) zoning in Prince George’s County generally allows single-family detached homes on large lots, with a minimum lot size around 2 acres. At 10.6 acres, this parcel could potentially support a minor subdivision, subject to M-NCPPC review.'],
 ];
 
-const FALLBACK_DEFAULT = 'Based on the RR zoning and the recorded constraints, this parcel looks broadly feasible for low-density residential use — the main items to verify with Prince George’s County are the woodland conservation requirements and WSSC service availability. Connect an Anthropic API key (VITE_ANTHROPIC_API_KEY) to get live answers.';
+const FALLBACK_DEFAULT = 'Based on the RR zoning and the recorded constraints, this parcel looks broadly feasible for low-density residential use — the main items to verify with Prince George’s County are the woodland conservation requirements and WSSC service availability. Configure an Anthropic API key on the server (ANTHROPIC_API_KEY) to get live answers.';
 
 // Pool of opening questions — two are sampled at random when the chat first opens.
 const STARTER_QUESTIONS = [
@@ -40,16 +27,6 @@ const STARTER_QUESTIONS = [
   'Is WSSC water and sewer available here?',
 ];
 
-// JSON schema for AI-generated follow-up questions.
-const SUGGESTION_SCHEMA = {
-  type: 'object' as const,
-  properties: {
-    questions: { type: 'array' as const, items: { type: 'string' as const } },
-  },
-  required: ['questions'],
-  additionalProperties: false,
-};
-
 // Fisher–Yates sample of `n` items from `arr`.
 function sample<T>(arr: T[], n: number): T[] {
   const copy = [...arr];
@@ -59,11 +36,6 @@ function sample<T>(arr: T[], n: number): T[] {
   }
   return copy.slice(0, n);
 }
-
-const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY as string | undefined;
-const client = apiKey
-  ? new Anthropic({ apiKey, dangerouslyAllowBrowser: true })
-  : null;
 
 type ChatMessage = { role: 'user' | 'assistant'; content: string };
 
@@ -151,26 +123,21 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
 
   // Refresh the suggested questions based on the latest exchange.
   const refreshSuggestions = async (question: string, answer: string) => {
-    if (!client) {
-      setSuggestions(prev => sample(STARTER_QUESTIONS.filter(q => !prev.includes(q)), 2));
-      return;
-    }
     try {
-      const res = await client.messages.create({
-        model: MODEL,
-        max_tokens: 256,
-        system:
-          'You generate follow-up questions for a land feasibility assistant. Given the user\'s last question and the assistant\'s answer, propose exactly 2 natural follow-up questions the user is likely to ask next. Each must be under 12 words, phrased from the user\'s point of view, and not repeat the previous question.',
-        messages: [{ role: 'user', content: `Question: ${question}\n\nAnswer: ${answer}` }],
-        output_config: { format: { type: 'json_schema', schema: SUGGESTION_SCHEMA } },
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ action: 'suggest', question, answer }),
       });
-      const text = res.content.find(b => b.type === 'text')?.text ?? '';
-      const parsed = JSON.parse(text) as { questions?: string[] };
+      if (!res.ok) throw new Error('suggest unavailable');
+      const parsed = (await res.json()) as { questions?: string[] };
       if (Array.isArray(parsed.questions) && parsed.questions.length > 0) {
         setSuggestions(parsed.questions.slice(0, 2));
+        return;
       }
+      throw new Error('no questions');
     } catch {
-      setSuggestions(sample(STARTER_QUESTIONS, 2));
+      setSuggestions(prev => sample(STARTER_QUESTIONS.filter(q => !prev.includes(q)), 2));
     }
   };
 
@@ -184,25 +151,29 @@ export default function ChatAssistant({ parcelSelected }: { parcelSelected: bool
 
     let answer = '';
     try {
-      if (client) {
-        const stream = client.messages.stream({
-          model: MODEL,
-          max_tokens: 1024,
-          system: SYSTEM_PROMPT,
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          action: 'chat',
           messages: [...history, { role: 'user' as const, content: trimmed }],
-        });
-        stream.on('text', appendToLast);
-        const final = await stream.finalMessage();
-        answer = final.content
-          .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-          .map(b => b.text)
-          .join('');
-      } else {
-        answer = await streamFallback(trimmed);
+        }),
+      });
+      if (!res.ok || !res.body) throw new Error('chat unavailable');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        if (chunk) {
+          appendToLast(chunk);
+          answer += chunk;
+        }
       }
-    } catch (error) {
-      const detail = error instanceof Anthropic.APIError ? error.message : 'Something went wrong.';
-      appendToLast(`Sorry, I couldn’t reach the assistant. ${detail}`);
+    } catch {
+      // API unavailable (no key, or running plain `vite` dev) — use canned answers.
+      answer = await streamFallback(trimmed);
     } finally {
       setIsStreaming(false);
     }

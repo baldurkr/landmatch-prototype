@@ -25,7 +25,8 @@
       "mcp__claude_ai_Figma__get_metadata",
       "Skill(claude-api)",
       "Skill(claude-api:*)",
-      "Bash(curl -s -o /tmp/active_layers.png \"https://www.figma.com/api/mcp/asset/00264c8f-077d-45eb-8b85-7affc1497229\")"
+      "Bash(curl -s -o /tmp/active_layers.png \"https://www.figma.com/api/mcp/asset/00264c8f-077d-45eb-8b85-7affc1497229\")",
+      "Bash(npx vercel *)"
     ]
   }
 }
